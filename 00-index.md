@@ -1,5 +1,11 @@
-# Coding Standards & State-of-the-Art Practices — Unified Reference
+# Coding Standards & State-of-the-Art Practices — Index & Routing
 
+> The canonical **navigation index** for this reference library: document maps,
+> file-extension routing, the rule-ID scheme, the severity vocabulary, and the
+> conflict-resolution priority order. For a short orientation, start with
+> [`README.md`](README.md); for the full agent workflow, see
+> [`12-ai-agent-usage.md`](12-ai-agent-usage.md).
+>
 > A curated, citation-backed reference library of software-engineering best
 > practices, coding guidelines, and state-of-the-art techniques. Written to be
 > equally useful to human engineers and AI coding agents.

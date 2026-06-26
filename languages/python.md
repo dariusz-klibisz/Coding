@@ -4,7 +4,7 @@
 > code.
 > **Primary sources:** PEP 8 (style), PEP 257 (docstrings), PEP 20 (Zen),
 > PEP 484/526/604 (typing), PEP 621 (packaging metadata).
-> **Relationship to general docs:** extends [general docs](../00-README.md). Where a
+> **Relationship to general docs:** extends [general docs](../00-index.md). Where a
 > general rule and a Python rule conflict, the Python rule wins for Python.
 
 **Rule ID prefix:** `PY`

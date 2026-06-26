@@ -53,7 +53,7 @@ If fixing it is broad or risky, isolate the fix and document the rest as follow-
 
 ## 3. How to load this library
 
-**`GEN-AI-03` (SHOULD)** Route via [`00-README.md`](00-README.md) first: it has an
+**`GEN-AI-03` (SHOULD)** Route via [`00-index.md`](00-index.md) first: it has an
 index table mapping topic → file → rule-ID prefix → "load when" trigger. Load only
 the documents relevant to the current task instead of everything.
 
@@ -174,7 +174,7 @@ reporting it, not toward asking.
 
 ## References
 
-- This library's [`00-README.md`](00-README.md) — routing, rule-ID scheme, and
+- This library's [`00-index.md`](00-index.md) — routing, rule-ID scheme, and
   conflict-resolution order.
 - [`09-documentation-and-comments.md`](09-documentation-and-comments.md) §9 —
   writing docs that AI agents can consume reliably.

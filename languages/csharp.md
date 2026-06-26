@@ -6,7 +6,7 @@
 > features below require the matching SDK/target framework.
 > **Primary sources:** Microsoft .NET Coding Conventions, Framework Design
 > Guidelines, .NET Runtime/Roslyn style.
-> **Relationship to general docs:** extends [general docs](../00-README.md). Where a
+> **Relationship to general docs:** extends [general docs](../00-index.md). Where a
 > general rule and a C# rule conflict, the C# rule wins for C#.
 
 **Rule ID prefix:** `CS`

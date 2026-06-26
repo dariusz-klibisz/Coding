@@ -6,7 +6,7 @@
 > embedded conventions (e.g. Barr Group). Safety standards referenced: IEC 61508,
 > ISO 26262, DO-178C.
 > **Relationship to general docs:** extends and specializes
-> [general docs](../00-README.md). Where a general rule and an embedded rule conflict,
+> [general docs](../00-index.md). Where a general rule and an embedded rule conflict,
 > the embedded rule wins for embedded C.
 
 **Rule ID prefix:** `EC`

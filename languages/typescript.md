@@ -5,7 +5,7 @@
 > [vue.md](vue.md); this file covers the language itself.
 > **Primary sources:** TypeScript Handbook, TypeScript-ESLint, common community
 > standards.
-> **Relationship to general docs:** extends [general docs](../00-README.md). Where a
+> **Relationship to general docs:** extends [general docs](../00-index.md). Where a
 > general rule and a TS rule conflict, the TS rule wins for TS.
 
 **Rule ID prefix:** `TS`

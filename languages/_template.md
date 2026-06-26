@@ -12,12 +12,14 @@
 >    hard rules.
 > 5. Pair **Bad/Good** code examples for non-obvious rules.
 > 6. Cite the language's **authoritative** style guide(s)/standards in References.
-> 7. Add a row to the Languages table in the top-level `README.md`.
+> 7. Add a row to the Languages table and the file-extension routing table in
+>    [`00-index.md`](../00-index.md), and a row to the File Map in the top-level
+>    `README.md`.
 > 8. Delete this instruction block when done.
 
 > **Scope:** <language version(s), runtime(s), target use cases>.
 > **Primary sources:** <official style guide(s) / standards>.
-> **Relationship to general docs:** extends [general docs](../00-README.md). Where a
+> **Relationship to general docs:** extends [general docs](../00-index.md). Where a
 > general rule and a `<LANGUAGE>` rule conflict, the `<LANGUAGE>` rule wins for
 > `<LANGUAGE>`.
 

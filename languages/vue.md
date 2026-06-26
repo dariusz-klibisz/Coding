@@ -4,7 +4,7 @@
 > Composition API + Vite + Pinia.
 > **Primary source:** the official Vue.js Style Guide (Priority A–D). The official
 > A and B rules quoted here are verified against vuejs.org.
-> **Relationship to general docs:** extends [general docs](../00-README.md) and builds
+> **Relationship to general docs:** extends [general docs](../00-index.md) and builds
 > directly on [typescript.md](typescript.md) (all TS rules apply inside `.vue`
 > `<script setup lang="ts">`). Where rules conflict, this file wins for `.vue`.
 
