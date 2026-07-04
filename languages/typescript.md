@@ -283,6 +283,25 @@ const bad  = config.port || 8080;   // also overrides a valid 0 (bug)
 and stay consistent. Avoid the non-null assertion `!` except where you provably
 know better than the compiler — and comment why.
 
+**`TS-NULL-03` (MUST)** After coercing external input with `Number(...)` (or
+`parseFloat`/`parseInt`), guard with `Number.isFinite` — `NaN` and `Infinity`
+survive coercion, serialize to `null` in JSON, and poison every comparison
+(`NaN` compares false to everything, so range checks silently pass or fail
+wrongly). Check nullable numerics with `x != null`, never truthiness: `if (x)`
+silently drops a legitimate `0` — the same falsy-zero hazard as `||` defaults
+(`TS-NULL-01`).
+
+```ts
+// Bad — NaN flows through; 0 is treated as missing
+const qty = Number(req.query.qty);
+if (qty) applyQuantity(qty);
+
+// Good — finite check after coercion; null check for absence
+const qty = Number(req.query.qty);
+if (!Number.isFinite(qty)) throw new BadRequestError("qty must be a number");
+if (limit != null && qty > limit) throw new BadRequestError("qty over limit");
+```
+
 ---
 
 ## 12. Functions
@@ -334,6 +353,23 @@ import chains (`../../../`); configure path aliases.
 new code — ES modules are the standard. Avoid side-effectful imports unless
 intentional.
 
+**`TS-MOD-05` (SHOULD NOT)** Don't capture `process.env` (or config derived from
+it) in module-top-level constants in code that must be testable or reloadable —
+the value freezes at first import, defeating per-test overrides and runtime
+config reloads. Read env inside functions, or expose an explicit reset seam.
+Additionally, coerce env-derived booleans through a typed helper: every env
+value is a string, and the string `"false"` is truthy.
+
+```ts
+// Bad — frozen at first import; "false" is a truthy string
+const DEBUG = process.env.DEBUG || false;
+
+// Good — read at call time; explicit string→boolean coercion
+const envBool = (name: string): boolean =>
+  ["1", "true", "yes"].includes((process.env[name] ?? "").toLowerCase());
+const isDebug = () => envBool("DEBUG");
+```
+
 ---
 
 ## 15. Async & promises
@@ -362,6 +398,23 @@ const results = await Promise.all(ids.map(fetchUser));
 **`TS-ASYNC-04` (SHOULD)** Avoid the `async` Promise-executor anti-pattern; don't
 `await` non-promises needlessly; propagate `AbortSignal` for cancellation and add
 timeouts (`GEN-ERR-19`).
+
+**`TS-ASYNC-05` (MUST)** Check `response.ok` (or the status code) before
+consuming a `fetch` response — `fetch` resolves successfully on HTTP 4xx/5xx and
+rejects only on network failure. Parsing the body of an error response
+propagates garbage downstream, and a destructive operation keyed on an unchecked
+response can, e.g., treat "reference list unavailable" as "reference list empty"
+and delete everything it should have kept.
+
+```ts
+// Bad — a 500 error page is parsed as if it were data
+const data = await (await fetch(url)).json();
+
+// Good — status checked before the body is consumed
+const res = await fetch(url);
+if (!res.ok) throw new Error(`GET ${url} failed: ${res.status}`);
+const data = await res.json();
+```
 
 ---
 
@@ -491,6 +544,11 @@ sanitize (DOMPurify) or use text APIs (`GEN-SEC-08`).
 **`TS-SEC-04` (SHOULD)** Run `npm audit`/Snyk and pin/lockfile deps; beware
 prototype pollution (`__proto__`) when merging untrusted objects; avoid `child_
 process` with shell + untrusted input.
+**`TS-SEC-05` (MUST)** Compare secrets, tokens, and signatures with
+`crypto.timingSafeEqual` on equal-length buffers (hash or HMAC both sides first
+if lengths can differ — it throws on length mismatch); never `===`/`!==` on
+secret strings, which short-circuits at the first differing character and leaks
+timing information (`GEN-SEC-13`).
 
 ---
 
@@ -517,6 +575,12 @@ code so type regressions are caught.
 - Trusting external data without schema validation.
 - `var`; `==`/`!=`; `||` for defaults instead of `??`.
 - Floating/unhandled promises; `await` in a loop for independent work.
+- Consuming a `fetch` body without checking `response.ok`/status.
+- Truthiness checks on nullable numerics (drops `0`); unguarded `Number(...)`
+  coercion letting `NaN`/`Infinity` flow through.
+- `===` on secret strings instead of `crypto.timingSafeEqual`.
+- Module-top-level `process.env` capture; treating env strings (`"false"`) as
+  booleans.
 - Throwing non-`Error` values; assuming `catch` var is an `Error`; discarding the
   original error instead of passing `{ cause }`.
 - `!` non-null assertions sprinkled to silence the compiler.
@@ -546,11 +610,16 @@ code so type regressions are caught.
 - [ ] Discriminated unions for variant state; exhaustive switches via `never`.
 - [ ] Constrained, readable generics; utility types reused.
 - [ ] `readonly`/`Readonly`/`as const` for immutable data.
-- [ ] Explicit null/undefined handling; `?.`/`??`; minimal `!`.
+- [ ] Explicit null/undefined handling; `?.`/`??`; minimal `!`;
+      `Number.isFinite` after numeric coercion; `!= null` (not truthiness) for
+      nullable numerics.
 - [ ] Annotated params & exported return types; options objects; no floating
       promises.
-- [ ] Named exports; `import type`; no circular deps/namespaces.
-- [ ] async/await; `Promise.all` for concurrency; cancellation + timeouts.
+- [ ] Named exports; `import type`; no circular deps/namespaces; env read inside
+      functions (no frozen module-level env constants); env booleans via typed
+      helper.
+- [ ] async/await; `Promise.all` for concurrency; cancellation + timeouts;
+      `response.ok` checked before consuming `fetch` bodies.
 - [ ] Throw `Error` subclasses; narrow `unknown` catch vars; preserve `{ cause }`;
       Result type for expected failures.
 - [ ] String-literal unions/const-objects preferred over enums (string enums if an
@@ -558,7 +627,8 @@ code so type regressions are caught.
 - [ ] No `new Array`/`new Object`; numeric `sort` has compare fn;
       `Object.keys`/`Object.hasOwn` over `for...in`/`hasOwnProperty`; no `export let`.
 - [ ] No `eval`/`innerHTML` on untrusted data; schema-validated input;
-      parameterized queries; CSPRNG; audited/locked deps.
+      parameterized queries; CSPRNG; audited/locked deps;
+      `crypto.timingSafeEqual` for secret comparison.
 - [ ] Vitest/Jest in TS; testing-library + Playwright + fast-check; type tests for
       libraries.
 

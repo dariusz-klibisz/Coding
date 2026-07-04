@@ -120,6 +120,25 @@ request destinations; block requests to internal/metadata addresses
 injection — the authoritative defense is context-correct escaping/parameterization
 at the sink (§4). Use both.
 
+**`GEN-SEC-47` (MUST)** Prevent path traversal: any external value used to
+construct a filesystem path must be allowlist-validated or reduced to a basename
+and resolved against a fixed base directory. The same discipline applies to
+interpreter-like sinks that `GEN-SEC-08` does not enumerate: every value
+interpolated into a query DSL (e.g. a search-engine filter expression), an
+XML/SOAP body, or a URL path segment must be escaped/encoded for that specific
+context or validated against a strict allowlist.
+
+```python
+# WRONG — "../../etc/passwd" escapes the upload directory
+path = os.path.join(UPLOAD_DIR, request.args["filename"])
+
+# RIGHT — reduce to basename, then verify containment after resolution
+name = os.path.basename(request.args["filename"])
+path = os.path.realpath(os.path.join(UPLOAD_DIR, name))
+if not path.startswith(os.path.realpath(UPLOAD_DIR) + os.sep):
+    abort(400)
+```
+
 ---
 
 ## 4. Output encoding
@@ -227,6 +246,13 @@ secret scanning) in CI and as a pre-commit hook to catch leaks before they land.
 **`GEN-SEC-27` (SHOULD)** Scope secrets minimally (least privilege) and keep them
 out of logs, error messages, and crash dumps.
 
+**`GEN-SEC-46` (MUST NOT)** Never transmit secrets (API keys, tokens, signatures,
+credentials) in URL query strings. Query strings are captured in server and proxy
+access logs, browser history, `Referer` headers, and test traces — none of which
+are treated as secret stores. Send secrets in a header (e.g. `Authorization`) or
+the request body, and never interpolate a secret-bearing URL into an error
+message or log line (`GEN-SEC-27`).
+
 ---
 
 ## 9. Memory & resource safety
@@ -322,6 +348,36 @@ causes of breaches.
 **`GEN-SEC-44` (SHOULD)** Run services as non-root with minimal filesystem and
 network permissions; apply container/OS sandboxing.
 
+**`GEN-SEC-45` (MUST)** Fail closed when security configuration is absent. A
+missing secret, key, or verification setting must abort startup or reject the
+request (e.g. 503) — never silently skip the control. Configuration absence may
+disable the *feature*; it must never disable the *control*. The same applies to
+shared-secret comparisons where both sides can be absent (an unset env var plus
+a missing header compare `undefined === undefined` and "authenticate" nothing),
+and to fallback/default secrets or salts baked into code.
+
+**Why:** `if (signingKey) verify(payload)` turns an unset environment variable
+into a full authentication bypass — and no test of the correctly-configured path
+will catch it. This is the "fail securely" principle (§1) applied to
+configuration: the safe response to a missing control is denial, not
+permissiveness.
+
+```ts
+// WRONG — unset WEBHOOK_SECRET silently disables signature verification
+if (process.env.WEBHOOK_SECRET) {
+  verifySignature(payload, signature, process.env.WEBHOOK_SECRET);
+}
+handleWebhook(payload);
+
+// RIGHT — missing secret rejects the request (fail closed)
+const secret = process.env.WEBHOOK_SECRET;
+if (!secret) throw createError({ statusCode: 503 });        // not configured
+if (!verifySignature(payload, signature, secret)) {
+  throw createError({ statusCode: 401 });                   // invalid signature
+}
+handleWebhook(payload);
+```
+
 ---
 
 ## 14. Anti-patterns
@@ -336,6 +392,11 @@ network permissions; apply container/OS sandboxing.
 - "We'll add security later" — retrofitting is costly and incomplete.
 - Trusting `X-Forwarded-For`/headers/JWT claims without verification.
 - Ignoring dependency CVE alerts.
+- `if (secret) verify(...)` — absent security configuration silently skipping the
+  control instead of failing closed.
+- Secrets/tokens in URL query strings (logged, cached, leaked via `Referer`).
+- Untrusted filenames joined into filesystem paths; unescaped values in query
+  DSLs, XML bodies, or URL path segments.
 
 ---
 
@@ -343,6 +404,8 @@ network permissions; apply container/OS sandboxing.
 
 - [ ] All external input treated as hostile; validated (allowlist) at the boundary.
 - [ ] SQL parameterized; OS commands use arg vectors with `shell=false`.
+- [ ] External values in file paths basename-reduced/allowlisted with containment
+      checks; query-DSL/XML/URL-segment sinks context-escaped or allowlisted.
 - [ ] Output context-encoded; no raw-HTML sinks with untrusted data; CSP set.
 - [ ] Passwords hashed with Argon2id/scrypt/bcrypt + salt; constant-time compares.
 - [ ] Authorization enforced server-side on every request; deny by default; IDOR
@@ -351,6 +414,7 @@ network permissions; apply container/OS sandboxing.
 - [ ] Vetted crypto libs; strong algorithms; TLS 1.2+; CSPRNG for all tokens;
       no nonce reuse.
 - [ ] No hardcoded/committed secrets; secret scanning in CI; secrets rotated.
+- [ ] No secrets in URL query strings; secrets carried in headers or bodies only.
 - [ ] Buffers bounds-checked; integer overflow guarded; no UAF/double-free;
       sanitizers in CI.
 - [ ] Resource limits enforced: request/body size, decompression size+ratio,
@@ -360,6 +424,8 @@ network permissions; apply container/OS sandboxing.
 - [ ] Errors generic to users, detailed in logs; no secrets/PII in logs; log
       injection prevented; security events logged.
 - [ ] Hardened, least-privilege, debug-off production defaults.
+- [ ] Missing security configuration fails closed (startup abort or 4xx/5xx),
+      never skips the control; no default/fallback secrets or salts in code.
 
 ---
 

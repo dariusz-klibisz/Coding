@@ -151,6 +151,16 @@ workloads dramatically. See [06-concurrency.md](07-concurrency.md).
 push computation close to data (DB-side filtering/aggregation) rather than pulling
 everything to the client.
 
+**`GEN-PERF-19` (SHOULD)** Construct expensive clients — database pools, HTTP
+clients, S3 clients, SMTP transporters — once per process as lazy module-level
+singletons, with an error listener attached and an exported close hook for
+graceful shutdown. Never construct them per request or per job.
+
+**Why:** Per-invocation construction defeats connection pooling, pays the
+TCP/TLS handshake on every call, and can exhaust the server's connection limit
+under load. Lazy initialization keeps startup and tests cheap; the exported
+close hook lets shutdown drain connections cleanly instead of leaking them.
+
 ---
 
 ## 7. Caching
@@ -236,6 +246,8 @@ spend complexity only on the critical 3%.
   (memory blowup).
 - **Parallelizing for its own sake**, adding races for no measured gain.
 - **Benchmarks without warmup/variance handling**, yielding misleading numbers.
+- **Constructing a new DB pool / HTTP / SMTP client per request or per job**
+  instead of a process-wide singleton.
 
 ---
 
@@ -248,6 +260,8 @@ spend complexity only on the critical 3%.
 - [ ] Allocation reduced in hot paths; memory model understood.
 - [ ] Data layout cache-friendly where it's measured to matter.
 - [ ] I/O round trips minimized; async used for I/O-bound work.
+- [ ] Expensive clients (pools, HTTP/S3/SMTP) are lazy per-process singletons
+      with error listeners and a close hook — not per-request.
 - [ ] Caching has explicit invalidation + size bound + stampede protection.
 - [ ] Parallelism applied to CPU-bound, concurrency to I/O-bound; justified by
       measurement.

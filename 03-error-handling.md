@@ -186,6 +186,19 @@ except CacheUnavailable as e:
 misbehaves with no trace of why. If you genuinely intend to ignore an error,
 prove the intent: log it, comment why, and catch the *specific* type.
 
+**`GEN-ERR-28` (MUST NOT)** Never swallow errors on writes whose absence has
+legal, audit, or compliance consequences — consent records, audit trails,
+financial events. Such writes must block the operation, surface the failure, or
+dead-letter for guaranteed replay. Code reading such stores must also
+distinguish "empty result" from "transport failure" rather than collapsing both
+into a fallback value.
+
+**Why:** A `.catch(() => {})` on a consent or audit write converts a schema
+mismatch into a silent, months-long compliance outage while the API keeps
+reporting success. An ordinary swallowed error (`GEN-ERR-11`) costs debugging
+time; a swallowed compliance write costs the record itself, which cannot be
+reconstructed after the fact.
+
 ---
 
 ## 7. Where to handle: catch at the right level
@@ -311,6 +324,27 @@ object/system should be left in the state it had before the operation (no partia
 mutation). Validate before mutating; use transactions; operate on a copy then
 swap.
 
+**`GEN-ERR-27` (MUST)** No network I/O inside an open database transaction.
+Download, parse, and validate before opening the transaction; fire side effects
+(notifications, messages, external API calls) only after commit. Keep
+transactions short.
+
+**Why:** A remote call mid-transaction holds locks and a connection for the full
+network latency (or timeout) and couples the transaction's fate to an external
+system. Worse, a side effect emitted mid-transaction becomes a lie if the
+transaction rolls back — the notification was sent but the state change never
+happened — and re-fires on every retry (`GEN-ERR-23`).
+
+**`GEN-ERR-29` (SHOULD)** Treat database constraints as the authority for
+uniqueness and invariants; pre-checks are advisory (useful for friendly error
+messages only). A check-then-write sequence is a TOCTOU race: two concurrent
+requests both pass the check, then both write. Insert/update and handle the
+constraint-violation error instead (the general check-then-act hazard:
+`GEN-CONC-05`). For multi-step writes spanning non-transactional systems (file
+upload + DB row, external API call + local write), order the steps
+least-damaging-last and add a compensating action for the step that can strand
+state.
+
 ---
 
 ## 13. Anti-patterns
@@ -325,6 +359,12 @@ swap.
 - **Leaking secrets / raw input into logs.**
 - **Returning a "default" value to hide an error** (silent corruption).
 - **Throwing in destructors/finalizers/cleanup**, masking the real error.
+- **`.catch(() => {})` on audit/consent/financial writes** — a silent compliance
+  outage while the API reports success.
+- **Network calls or notifications inside an open DB transaction** — long lock
+  hold; side effects that lie on rollback and re-fire on retry.
+- **Check-then-write "enforcement" of uniqueness** instead of relying on the
+  database constraint (TOCTOU race).
 
 ---
 
@@ -337,6 +377,9 @@ swap.
       caught; cause chained on rethrow.
 - [ ] Return codes (if used) are always checked, enforced by tooling.
 - [ ] No swallowed errors; intentional ignores are logged + justified.
+- [ ] Compliance-critical writes (audit, consent, financial) never swallowed;
+      they block, surface, or dead-letter; empty result distinguished from
+      transport failure.
 - [ ] Errors handled at the layer with enough context; boundaries translate errors.
 - [ ] Top-level catch-all logs and returns a safe response.
 - [ ] Errors logged once, structured, with context, no secrets.
@@ -345,6 +388,11 @@ swap.
       likely.
 - [ ] Retryable operations are idempotent.
 - [ ] Resources released on all paths; failure atomicity preserved.
+- [ ] No network I/O inside open transactions; side effects fired only after
+      commit.
+- [ ] Uniqueness/invariants enforced by constraints (violation handled), not by
+      check-then-write; non-transactional multi-step writes ordered
+      least-damaging-last with compensation.
 
 ---
 

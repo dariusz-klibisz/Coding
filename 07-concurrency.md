@@ -231,6 +231,18 @@ processes (or native extensions releasing the lock) are required.
 lengths, in-flight limits) and apply **backpressure**. Unbounded concurrency
 exhausts memory/threads/connections and collapses under load.
 
+**`GEN-CONC-19` (SHOULD)** In background job/queue systems, every queue must
+declare an explicit retry, backoff, and retention policy, and every worker needs
+an error handler and a signal-driven graceful shutdown: on SIGTERM, stop taking
+new jobs, drain or checkpoint in-flight jobs, then close broker/database
+connections.
+
+**Why:** The common defaults — single-attempt jobs, unbounded retention of
+completed/failed job records, hard-kill deploys — lose work on every transient
+failure and every deploy, and leak broker memory as records accumulate. Retry
+policy belongs with the queue declaration; use bounded backoff (`GEN-ERR-18`)
+and make retried jobs idempotent (`GEN-ERR-23`).
+
 ---
 
 ## 11. Testing concurrent code
@@ -260,6 +272,9 @@ Sanitizers detect data races even when the test happens to pass.
 - **`sleep()`-based "synchronization"** instead of proper signaling.
 - **Hand-rolled lock-free code** without deep memory-model expertise.
 - **Catching/ignoring exceptions in background tasks**, silently dropping work.
+- **Queues left on default single-attempt/unbounded-retention policies; workers
+  with no error handler or SIGTERM-drain shutdown** (lost jobs, leaked broker
+  memory).
 
 ---
 
@@ -277,6 +292,8 @@ Sanitizers detect data races even when the test happens to pass.
 - [ ] Cancellation and timeouts propagated.
 - [ ] Execution model (async/thread/process) matches the workload.
 - [ ] Concurrency and queues are bounded; backpressure applied.
+- [ ] Queues declare retry/backoff/retention; workers have error handlers and
+      drain in-flight jobs on SIGTERM.
 - [ ] Race/thread sanitizers and stress tests run in CI.
 
 ---

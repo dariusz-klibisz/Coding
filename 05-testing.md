@@ -101,6 +101,28 @@ the name alone should tell you what broke.
 observable outputs/effects, not internal calls or private state, so refactors
 that preserve behavior don't break tests.
 
+**`GEN-TEST-23` (MUST NOT)** A test must never be able to pass vacuously
+(Self-validating, `GEN-TEST-03`). Concretely prohibited:
+
+- **Assertions inside conditionals** — `if (await el.isVisible()) { expect(...) }`
+  passes with zero assertions executed when the element is missing.
+- **Bare early `return` as a skip** — reports "passed"; use the framework's
+  explicit skip mechanism with a reason so the gap stays visible.
+- **Accepted-status allowlists that include the failure mode under test** —
+  `expect([200, 401]).toContain(status)` passes when an auth bypass returns 200.
+- **Tautologies** — `expect(x || true).toBe(true)`, or asserting a mock's own
+  return value back at itself.
+
+Pair every negative assertion ("X is absent/rejected") with a positive control
+proving the test can detect X when it is present.
+
+**`GEN-TEST-25` (SHOULD)** Pin locale and timezone for any assertion that depends
+on `Intl`, `toLocale*` formatting, string collation, or date formatting — e.g.
+set `TZ=UTC` and an explicit locale in the test environment, or pass the locale
+explicitly at the call site. Host ICU builds and CI images differ, so unpinned
+locale-dependent assertions are flaky or environment-dependent — a violation of
+Repeatable (`GEN-TEST-03`).
+
 ---
 
 ## 4. Test structure: Arrange-Act-Assert
@@ -141,6 +163,13 @@ partitioning + boundary-value analysis catch the most bugs per test.
 **`GEN-TEST-09` (SHOULD)** Keep units genuinely isolated from I/O (network, disk,
 clock, DB) by injecting dependencies, so tests stay Fast and Repeatable.
 
+**`GEN-TEST-22` (MUST)** Import the system under test from its source module.
+Never re-implement the SUT's logic inside the test file: a hand-copied fork
+silently drifts from production and can end up asserting the *opposite* of
+production behavior while staying green, because the test exercises the copy,
+not the code that ships. Likewise, never import compiled build artifacts
+(`dist/`) in tests — they go stale relative to source and validate an old build.
+
 ---
 
 ## 6. Test doubles: mocks, stubs, fakes, spies
@@ -174,6 +203,14 @@ elaborate mock setups where practical — they exercise real behavior and stay
 robust to refactoring. Use **contract tests** (§7) to verify the fake matches the
 real dependency.
 
+**`GEN-TEST-24` (SHOULD)** Dispatch test doubles by identity, not call order.
+Match mocked calls by URL, method, or arguments rather than positional
+`mockResolvedValueOnce` chains — positional chains silently mis-map responses
+when a call is added, removed, or reordered (especially across `Promise.all`,
+where call order is not what the chain's author assumed). Make unmatched calls
+throw instead of falling through to a catch-all default, so an unexpected
+request fails loudly instead of receiving a plausible canned response.
+
 ---
 
 ## 7. Integration & contract testing
@@ -190,6 +227,13 @@ between services so each side can be tested independently while guaranteeing the
 interface stays compatible — getting integration confidence without slow,
 all-up E2E environments.
 
+**`GEN-TEST-27` (SHOULD)** When one logical contract must exist in two
+representations that cannot share code — a TypeScript union mirrored by a SQL
+CHECK constraint, an enum mirrored in i18n keys, a permission table mirrored in
+an E2E fixture — add an automated parity test that fails when the two drift.
+Hand-maintained mirrors always drift eventually; a parity test converts silent
+drift into a visible failure at the moment it is introduced.
+
 ---
 
 ## 8. End-to-end testing
@@ -204,6 +248,12 @@ and flakiest.
 **`GEN-TEST-15` (SHOULD)** Combat flakiness: wait on conditions (not fixed
 sleeps), isolate test data, make them idempotent, and quarantine/diagnose flaky
 tests immediately — a flaky suite trains the team to ignore failures.
+
+**`GEN-TEST-26` (MUST)** Destructive test automation (teardown, cleanup scripts,
+bulk deletes) requires an explicit environment guard: assert that the target
+host/database matches a known test pattern, or require an explicit opt-in flag,
+before deleting anything. A misconfigured environment variable plus a valid
+credential must not be sufficient to bulk-delete production data.
 
 ---
 
@@ -346,6 +396,15 @@ good design generally:
 - **Slow suites** that developers stop running.
 - **Disabled/ignored tests** left in the codebase indefinitely.
 - **Coverage as the goal** rather than confidence.
+- **Re-implementing the SUT in the test file**, or testing stale `dist/` builds.
+- **Vacuous passes:** assertions inside conditionals, early-`return` skips,
+  status allowlists containing the failure mode, tautological assertions.
+- **Positional mock chains** (`mockResolvedValueOnce`) that mis-map responses on
+  reorder; catch-all mock defaults that hide unexpected calls.
+- **Unpinned locale/timezone** in formatting/collation assertions.
+- **Unguarded destructive cleanup** that can target production.
+- **Hand-maintained mirrored contracts** (types ↔ SQL, enums ↔ i18n) with no
+  parity test.
 
 ---
 
@@ -355,11 +414,23 @@ good design generally:
 - [ ] Tests are FIRST (Fast, Isolated, Repeatable, Self-validating, Timely).
 - [ ] Each test verifies one behavior with a descriptive name; AAA structure.
 - [ ] Tests assert behavior/outputs, not private implementation.
+- [ ] SUT imported from its source module — never re-implemented in the test,
+      never imported from `dist/`.
+- [ ] No vacuous passes: no conditional assertions, early-return skips,
+      failure-inclusive status allowlists, or tautologies; negative assertions
+      have positive controls.
+- [ ] Locale and timezone pinned for `Intl`/date/collation-dependent assertions.
 - [ ] Happy path + boundaries + error cases covered.
 - [ ] Mocking limited to owned boundaries; fakes preferred; not testing the mock.
+- [ ] Test doubles matched by identity (URL/method/args), not call order;
+      unmatched calls throw.
 - [ ] Integration tests run against realistic dependencies; contract tests between
       services.
+- [ ] Dual-representation contracts (types ↔ SQL, enums ↔ i18n, permissions ↔
+      fixtures) covered by automated parity tests.
 - [ ] Few, stable, critical-path E2E tests; flakiness actively eliminated.
+- [ ] Destructive teardown/cleanup guarded by an environment allowlist or
+      explicit opt-in flag.
 - [ ] Property-based tests for invariant-rich logic; fuzzing for parsers/untrusted
       input.
 - [ ] Coverage used to find gaps, not as a target; high-risk code prioritized;
