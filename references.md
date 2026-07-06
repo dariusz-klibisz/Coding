@@ -149,6 +149,8 @@ relevant rules; this file is the consolidated index.
 - ESLint — https://eslint.org/docs/latest/ · Prettier — https://prettier.io/docs/en/
 - Zod — https://zod.dev/
 - *Effective TypeScript* (Dan Vanderkam) — https://effectivetypescript.com/
+- TypeScript 5.5 release notes (inferred type predicates) — https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-5.html
+- TypeScript 3.9 release notes (`@ts-expect-error`) — https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-9.html
 
 ### Vue
 
@@ -163,6 +165,34 @@ relevant rules; this file is the consolidated index.
 - Pinia — https://pinia.vuejs.org/ · Vue Router — https://router.vuejs.org/ ·
   Vue Test Utils — https://test-utils.vuejs.org/
 - eslint-plugin-vue — https://eslint.vuejs.org/
+- Vue — List Rendering (`v-if`/`v-for` precedence in Vue 3) — https://vuejs.org/guide/essentials/list.html
+- Vue — Props: Reactive Props Destructure (3.5+) — https://vuejs.org/guide/components/props.html
+- Vue — Server-Side Rendering guide (hydration) — https://vuejs.org/guide/scaling-up/ssr.html
+- Nuxt — Data Fetching — https://nuxt.com/docs/getting-started/data-fetching ·
+  Error Handling — https://nuxt.com/docs/getting-started/error-handling
+- Vue I18n — https://vue-i18n.intlify.dev/
+
+### SQL / PostgreSQL / PostGIS
+
+- PostgreSQL documentation — https://www.postgresql.org/docs/current/
+- PostgreSQL wiki: "Don't Do This" — https://wiki.postgresql.org/wiki/Don%27t_Do_This
+- PostGIS documentation — https://postgis.net/documentation/
+- PostGIS Workshop: Spatial Indexing — https://postgis.net/workshops/postgis-intro/indexing.html
+- PgBouncer features (pooling-mode caveats) — https://www.pgbouncer.org/features.html
+
+### Docker
+
+- Docker docs — Building best practices — https://docs.docker.com/build/building/best-practices/
+- Dockerfile reference — https://docs.docker.com/reference/dockerfile/
+- Docker build secrets (BuildKit) — https://docs.docker.com/build/building/secrets/
+- Compose Specification — https://docs.docker.com/reference/compose-file/
+- hadolint — https://github.com/hadolint/hadolint
+
+### YAML
+
+- YAML specification 1.2.2 — https://yaml.org/spec/1.2.2/
+- YAML 1.1 bool / merge-key working drafts — https://yaml.org/type/bool.html · https://yaml.org/type/merge.html
+- yamllint documentation — https://yamllint.readthedocs.io/
 
 ---
 

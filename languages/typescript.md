@@ -179,6 +179,37 @@ declaration merging (useful for augmenting library types).
 Pick a default for object shapes and be consistent; reach for `type` when you need
 its extra power.
 
+**`TS-TYPE-02` (CONSIDER)** Use **branded (opaque) types** for domain identifiers
+when a codebase juggles several string/number ID kinds. A brand is a phantom
+property that exists only at the type level:
+
+```ts
+type OrderId = string & { readonly __brand: "OrderId" };
+type UserId  = string & { readonly __brand: "UserId" };
+
+function cancelOrder(id: OrderId): void { /* ... */ }
+
+declare const userId: UserId;
+cancelOrder(userId);              // compile error — UserId is not OrderId
+```
+
+**Why:** Plain `string` (or `number`) IDs are all mutually assignable, so passing
+a `UserId` where an `OrderId` is expected compiles fine and fails at runtime —
+or silently operates on the wrong record. The brand makes the ID kinds distinct
+to the compiler at **zero runtime cost** (it erases to a plain string).
+
+**Cost:** constructing a branded value requires a cast (`raw as OrderId`), which
+would violate `TS-CAST-01` if scattered around. Confine the cast to a single
+validation function that checks the raw value and returns the branded type —
+the clean entry point, and "parse, don't validate" (`TS-ANY-03`) applied to IDs:
+
+```ts
+function parseOrderId(raw: string): OrderId {
+  if (!/^ord_[a-z0-9]+$/.test(raw)) throw new Error(`invalid order id: ${raw}`);
+  return raw as OrderId;          // the only sanctioned cast site
+}
+```
+
 ---
 
 ## 7. Type narrowing & guards
@@ -196,6 +227,26 @@ function isString(x: unknown): x is string {
 **`TS-NARROW-02` (SHOULD)** Prefer narrowing over assertions (`as`) — narrowing is
 *checked* by the compiler/runtime; assertions are unchecked promises that can lie
 (§17).
+
+**`TS-NARROW-03` (CONSIDER)** TypeScript 5.5+ **infers type predicates** from
+simple boolean-returning functions, so an explicit `x is T` annotation is often
+unnecessary — `arr.filter((x) => x !== null)` narrows the element type by
+itself. Write an explicit `value is Foo` predicate only for multi-step narrowing
+logic the compiler can't analyze, or as a **public API contract** whose narrowing
+behavior must not change silently with inference. Inference preconditions: the
+function has **no explicit return-type annotation**, a **single analyzable
+`return` expression**, and the **parameter is not reassigned** in the body.
+
+```ts
+// TS 5.5+: predicate inferred — no annotation needed
+const users = maybeUsers.filter((u) => u !== null);   // User[], not (User|null)[]
+
+// Explicit predicate still warranted: multi-step logic / public contract
+function isValidUser(value: unknown): value is User {
+  if (typeof value !== "object" || value === null) return false;
+  return "id" in value && "name" in value;
+}
+```
 
 ---
 
@@ -370,6 +421,26 @@ const envBool = (name: string): boolean =>
 const isDebug = () => envBool("DEBUG");
 ```
 
+**`TS-MOD-06` (SHOULD NOT)** Avoid barrel `index.ts` re-export files in large
+internal directories. Importing *anything* through a barrel pulls the **entire
+directory** into the type-check and bundle graphs: slower `tsc` and editor
+feedback, defeated tree-shaking and lazy loading (side-effectful modules load
+eagerly even when unused), and an easy path to circular imports (`TS-MOD-03`).
+Barrels also obscure ownership — every consumer depends on "the directory"
+rather than the specific module it actually uses. Import from the concrete
+module instead.
+
+**When acceptable:** the small, stable, deliberately-curated public entry point
+of a package/library, where the re-export list *is* the API surface.
+
+```ts
+// Bad — pulls all of orders/ (and its transitive deps) into every consumer
+import { formatOrder } from "../orders";              // orders/index.ts barrel
+
+// Good — depend only on what is used
+import { formatOrder } from "../orders/format-order";
+```
+
 ---
 
 ## 15. Async & promises
@@ -414,6 +485,36 @@ const data = await (await fetch(url)).json();
 const res = await fetch(url);
 if (!res.ok) throw new Error(`GET ${url} failed: ${res.status}`);
 const data = await res.json();
+```
+
+**`TS-ASYNC-06` (SHOULD)** Use **`return await`** when returning a promise from
+inside a `try/catch` (or `try/finally`). A bare `return promise` lets the
+function frame exit before the promise settles: a rejection then escapes the
+local `catch` entirely, and `finally` runs **before** the awaited work
+completes. `return await` keeps the rejection catchable in the local handler and
+produces a fuller async stack trace (the function appears in it). ESLint's core
+`no-return-await` rule was **deprecated** for exactly this reason — the "extra
+tick" it optimized away no longer costs anything in modern engines; use
+`@typescript-eslint/return-await` (default option `in-try-catch`) instead.
+
+```ts
+// Bad — fetchUser rejection settles after the frame exits; catch never runs
+async function loadUser(id: string): Promise<User> {
+  try {
+    return fetchUser(id);
+  } catch (e) {
+    throw new UserLoadError(id, { cause: e });   // unreachable for rejections
+  }
+}
+
+// Good — rejection is caught locally and wrapped with { cause }
+async function loadUser(id: string): Promise<User> {
+  try {
+    return await fetchUser(id);
+  } catch (e) {
+    throw new UserLoadError(id, { cause: e });
+  }
+}
 ```
 
 ---
@@ -470,6 +571,24 @@ const routes = {
   about: "/about",
 } satisfies Record<string, string>;
 // routes.home is "/" (literal), and a typo key is still a compile error
+```
+
+**`TS-CAST-05` (MUST)** When a compiler error genuinely must be suppressed, use
+**`@ts-expect-error` with an explanatory comment** — never `@ts-ignore`.
+`@ts-expect-error` itself becomes a compile error once the underlying issue is
+fixed, so stale suppressions surface and get removed; `@ts-ignore` suppressions
+silently accumulate and keep masking whatever *new* error later appears on that
+line. Enable `@typescript-eslint/ban-ts-comment` (its default already forbids
+bare `@ts-ignore` and requires a description on `@ts-expect-error`).
+
+```ts
+// Bad — suppresses forever, even after the library's types are fixed
+// @ts-ignore
+brokenLib.frobnicate(config);
+
+// Good — errors as soon as the suppression becomes unnecessary
+// @ts-expect-error frobnicate's types omit the config overload (lib issue #123)
+brokenLib.frobnicate(config);
 ```
 
 ---
@@ -585,10 +704,17 @@ code so type regressions are caught.
   original error instead of passing `{ cause }`.
 - `!` non-null assertions sprinkled to silence the compiler.
 - `as` to silence/widen where `satisfies` would verify and preserve the type.
+- `@ts-ignore` instead of `@ts-expect-error` + comment (stale suppressions
+  accumulate silently).
+- Interchangeable plain `string`/`number` IDs across domains where branded types
+  would catch mix-ups at compile time.
 - Boolean-flag/optional-field state instead of discriminated unions; non-exhaustive
   switches.
 - Default exports everywhere; circular deps; `namespace` for new code; `export let`
-  (mutable exported bindings).
+  (mutable exported bindings); barrel `index.ts` re-exports in large internal
+  directories (slow type-check, broken tree-shaking, circular imports).
+- `return promise` (no `await`) inside `try/catch` — the rejection escapes the
+  local `catch` and `finally` runs before settlement.
 - `new Array(n)`/`new Object()` literals; `Array.sort` without a compare fn;
   `for...in`/`hasOwnProperty` instead of `Object.keys`/`Object.hasOwn`.
 - `innerHTML`/`v-html` with untrusted data; `eval`; `Math.random()` for tokens.
@@ -604,9 +730,13 @@ code so type regressions are caught.
 - [ ] `const` by default, no `var`, `===` only, `??` for defaults.
 - [ ] No `any`; use `unknown` + narrowing; validate external data with a schema
       (Zod) and infer types from it.
-- [ ] `interface` for shapes, `type` for unions/mapped; consistent default.
+- [ ] `interface` for shapes, `type` for unions/mapped; consistent default;
+      branded types considered where multiple ID kinds coexist (constructed via
+      a single validating function).
 - [ ] Narrowing/type guards over assertions; no `as`/`as any`/double-casts;
-      `satisfies` to validate-without-widening.
+      `satisfies` to validate-without-widening; `@ts-expect-error` + comment
+      (never `@ts-ignore`) for unavoidable suppressions; explicit `is`
+      predicates only where TS 5.5+ inference can't (multi-step / public API).
 - [ ] Discriminated unions for variant state; exhaustive switches via `never`.
 - [ ] Constrained, readable generics; utility types reused.
 - [ ] `readonly`/`Readonly`/`as const` for immutable data.
@@ -615,11 +745,13 @@ code so type regressions are caught.
       nullable numerics.
 - [ ] Annotated params & exported return types; options objects; no floating
       promises.
-- [ ] Named exports; `import type`; no circular deps/namespaces; env read inside
+- [ ] Named exports; `import type`; no circular deps/namespaces; no barrel
+      `index.ts` re-exports in large internal directories; env read inside
       functions (no frozen module-level env constants); env booleans via typed
       helper.
 - [ ] async/await; `Promise.all` for concurrency; cancellation + timeouts;
-      `response.ok` checked before consuming `fetch` bodies.
+      `response.ok` checked before consuming `fetch` bodies; `return await`
+      inside `try/catch`.
 - [ ] Throw `Error` subclasses; narrow `unknown` catch vars; preserve `{ cause }`;
       Result type for expected failures.
 - [ ] String-literal unions/const-objects preferred over enums (string enums if an
@@ -638,7 +770,11 @@ code so type regressions are caught.
 
 - TypeScript Handbook — https://www.typescriptlang.org/docs/handbook/intro.html
 - TSConfig reference (`strict`, etc.) — https://www.typescriptlang.org/tsconfig
+- TypeScript 5.5 release notes (inferred type predicates) — https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-5.html
+- TypeScript 3.9 release notes (`@ts-expect-error`) — https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-9.html
 - typescript-eslint — https://typescript-eslint.io/
+- typescript-eslint `return-await` rule (replaces deprecated `no-return-await`) — https://typescript-eslint.io/rules/return-await/
+- typescript-eslint `ban-ts-comment` rule — https://typescript-eslint.io/rules/ban-ts-comment/
 - "Do's and Don'ts" (TS Handbook) — https://www.typescriptlang.org/docs/handbook/declaration-files/do-s-and-don-ts.html
 - Zod — https://zod.dev/
 - Effective TypeScript (Dan Vanderkam) — https://effectivetypescript.com/

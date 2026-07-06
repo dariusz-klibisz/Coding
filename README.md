@@ -49,6 +49,9 @@ trade-offs.
 | [`languages/python.md`](languages/python.md) | Python 3 (3.10+) | `PY` |
 | [`languages/typescript.md`](languages/typescript.md) | TypeScript 5.x | `TS` |
 | [`languages/vue.md`](languages/vue.md) | Vue 3 SFC + TS | `VUE` |
+| [`languages/sql.md`](languages/sql.md) | SQL / PostgreSQL & PostGIS | `SQL` |
+| [`languages/docker.md`](languages/docker.md) | Dockerfile + Docker Compose | `DOCKER` |
+| [`languages/yaml.md`](languages/yaml.md) | YAML | `YAML` |
 | [`languages/_template.md`](languages/_template.md) | Skeleton for new languages | — |
 
 ### Checklists — compact pre-delivery review gates
@@ -58,7 +61,10 @@ trade-offs.
 [`checklists/csharp.md`](checklists/csharp.md),
 [`checklists/python.md`](checklists/python.md),
 [`checklists/typescript.md`](checklists/typescript.md),
-[`checklists/vue.md`](checklists/vue.md).
+[`checklists/vue.md`](checklists/vue.md),
+[`checklists/sql.md`](checklists/sql.md),
+[`checklists/docker.md`](checklists/docker.md),
+[`checklists/yaml.md`](checklists/yaml.md).
 
 [`references.md`](references.md) collects the authoritative sources behind the rules.
 
@@ -84,6 +90,9 @@ Start from the **task in front of you**, then load only what you need.
   | `.vue` | [`languages/vue.md`](languages/vue.md) (+ TypeScript) + [`checklists/vue.md`](checklists/vue.md) |
   | `.cs` | [`languages/csharp.md`](languages/csharp.md) + [`checklists/csharp.md`](checklists/csharp.md) |
   | `.c` / `.h` | [`languages/embedded-c.md`](languages/embedded-c.md) + [`checklists/embedded-c.md`](checklists/embedded-c.md) |
+  | `.sql` | [`languages/sql.md`](languages/sql.md) + [`checklists/sql.md`](checklists/sql.md) |
+  | `Dockerfile*` / `docker-compose*.yml` | [`languages/docker.md`](languages/docker.md) + [`checklists/docker.md`](checklists/docker.md) |
+  | `.yml` / `.yaml` | [`languages/yaml.md`](languages/yaml.md) + [`checklists/yaml.md`](checklists/yaml.md) |
 
 - **A cross-cutting concern** (security, testing, errors, concurrency, …) → load the
   matching root doc (`01`–`11`).

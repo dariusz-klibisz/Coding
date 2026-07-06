@@ -56,6 +56,10 @@ Start here, then **load only what you need**. See
 | `.vue` | [`languages/vue.md`](languages/vue.md) (+ TypeScript) + [`checklists/vue.md`](checklists/vue.md) |
 | `.cs` | [`languages/csharp.md`](languages/csharp.md) + [`checklists/csharp.md`](checklists/csharp.md) |
 | `.c` / `.h` (firmware) | [`languages/embedded-c.md`](languages/embedded-c.md) + [`checklists/embedded-c.md`](checklists/embedded-c.md) |
+| `.sql` (schemas, queries, migrations) | [`languages/sql.md`](languages/sql.md) + [`checklists/sql.md`](checklists/sql.md) |
+| `Dockerfile*` | [`languages/docker.md`](languages/docker.md) + [`checklists/docker.md`](checklists/docker.md) |
+| `docker-compose*.yml` / `compose.yaml` | [`languages/docker.md`](languages/docker.md) (+ YAML) + [`checklists/docker.md`](checklists/docker.md) |
+| `.yml` / `.yaml` (other) | [`languages/yaml.md`](languages/yaml.md) + [`checklists/yaml.md`](checklists/yaml.md) |
 
 ---
 
@@ -88,6 +92,9 @@ added to `languages/` without renumbering anything in the root.
 | [`languages/python.md`](languages/python.md) | Python 3 (3.10+) | `PY` | PEP 8 / 20 / 257 / 484 / 621 |
 | [`languages/typescript.md`](languages/typescript.md) | TypeScript 5.x | `TS` | TS Handbook, `strict` mode, ESLint/Prettier |
 | [`languages/vue.md`](languages/vue.md) | Vue 3 SFC + TS | `VUE` | Official Vue Style Guide (A–D), Composition API |
+| [`languages/sql.md`](languages/sql.md) | SQL / PostgreSQL 13+ & PostGIS 3 | `SQL` | PostgreSQL docs, PostGIS docs, PG wiki "Don't Do This" |
+| [`languages/docker.md`](languages/docker.md) | Dockerfile (BuildKit) + Docker Compose v2 | `DOCKER` | Docker "Building best practices", Compose Specification |
+| [`languages/yaml.md`](languages/yaml.md) | YAML 1.2 (config files) | `YAML` | YAML 1.2.2 spec, yamllint |
 | [`languages/_template.md`](languages/_template.md) | — | — | Skeleton for adding a new language |
 
 ## Checklists (compact pre-delivery review gates)
@@ -100,6 +107,9 @@ added to `languages/` without renumbering anything in the root.
 | [`checklists/python.md`](checklists/python.md) | Python |
 | [`checklists/typescript.md`](checklists/typescript.md) | TypeScript |
 | [`checklists/vue.md`](checklists/vue.md) | Vue |
+| [`checklists/sql.md`](checklists/sql.md) | SQL / PostgreSQL / PostGIS / migrations |
+| [`checklists/docker.md`](checklists/docker.md) | Docker / Compose |
+| [`checklists/yaml.md`](checklists/yaml.md) | YAML |
 
 [`references.md`](references.md) collects authoritative sources and authority notes.
 
@@ -120,7 +130,7 @@ Rule IDs are stable identifiers of the form `<PREFIX>-<TOPIC>-<NN>`:
 - General docs use `GEN-<AREA>` prefixes (`GEN-PRIN`, `GEN-DEF`, `GEN-ERR`,
   `GEN-SEC`, `GEN-TEST`, `GEN-PERF`, `GEN-CONC`, `GEN-VCS`, `GEN-DOC`, `GEN-OBS`,
   `GEN-TOOL`, `GEN-AI`).
-- Language docs use a short language prefix (`EC`, `CS`, `PY`, `TS`, `VUE`).
+- Language docs use a short language prefix (`EC`, `CS`, `PY`, `TS`, `VUE`, `SQL`, `DOCKER`, `YAML`).
 
 Language rules cross-reference the general rules they specialize (e.g.
 `PY-LOG-03` ties to `GEN-OBS-04`). Cite these IDs when justifying changes.

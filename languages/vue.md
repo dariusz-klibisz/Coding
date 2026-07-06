@@ -27,9 +27,11 @@
 11. [Templates & directives](#11-templates--directives)
 11a. [Slots](#11a-slots)
 12. [Performance](#12-performance)
+12a. [Server-side rendering (SSR) and hydration](#12a-server-side-rendering-ssr-and-hydration)
 13. [Security](#13-security)
 13a. [Forms](#13a-forms)
 13b. [Accessibility](#13b-accessibility)
+13c. [Internationalization (i18n)](#13c-internationalization-i18n)
 14. [Testing](#14-testing)
 15. [Anti-patterns](#15-anti-patterns)
 16. [Quick checklist](#quick-checklist)
@@ -84,11 +86,14 @@ on components; best practice on elements) to maintain component state and
 predictable DOM behavior (object constancy). Use a stable unique id, not the array
 index, when the list can reorder/insert/delete.
 
-**`VUE-A-04` (MUST)** **Never use `v-if` on the same element as `v-for`.** `v-for`
-has higher priority, so the `v-if` may reference a not-yet-defined iteration
-variable, and you re-evaluate the condition every iteration. Filter with a
-`computed` (e.g. `activeUsers`) or move `v-if` to a wrapping `<template>`/
-container.
+**`VUE-A-04` (MUST)** **Never use `v-if` on the same element as `v-for`.** In
+Vue 3, `v-if` has the **higher** priority and is evaluated first, so the
+condition cannot access variables from the `v-for` scope —
+`v-if="user.isActive"` references a `user` that does not exist yet (an error).
+To filter a list, use a `computed` (e.g. `activeUsers`); to conditionally skip
+items where the condition needs the loop variable, put `v-for` on a wrapping
+`<template>` and `v-if` on the inner element; to hide the whole list, move the
+`v-if` to a container element.
 
 ```vue
 <!-- Bad -->
@@ -96,7 +101,18 @@ container.
 
 <!-- Good: filter in a computed -->
 <li v-for="user in activeUsers" :key="user.id">{{ user.name }}</li>
+
+<!-- Good: condition needs the loop variable -->
+<template v-for="user in users" :key="user.id">
+  <li v-if="user.isActive">{{ user.name }}</li>
+</template>
 ```
+
+> **Note (Vue 2 → Vue 3):** the precedence **flipped**. In Vue 2, `v-for` had the
+> higher priority — the `v-if` could see the loop variable and silently
+> re-evaluated per iteration (wasteful but working). In Vue 3, `v-if` runs first
+> and cannot see it (broken outright). Code relying on either implicit ordering
+> breaks on migration — one more reason to never combine them.
 
 **`VUE-A-05` (MUST)** **Component-scoped styling.** Outside the top-level `App`/
 layout components, styles should be scoped — via `<style scoped>`, CSS Modules, or
@@ -197,6 +213,15 @@ button { font-weight: 600; }
 </style>
 ```
 
+**`VUE-SFC-04` (SHOULD NOT)** Avoid `:deep()` selectors that reach into a child
+component's internal DOM (e.g. `.card :deep(.child-internal-class)`). This
+couples the parent's stylesheet to the child's private markup — any child
+refactor silently breaks the parent's styling, and neither side is protected by
+`scoped` anymore. Instead, have the child expose an explicit theming API: CSS
+custom properties, props/variant classes, or slots the parent fills with its own
+(scoped-styled) markup. Reserve `:deep()` for third-party components that offer
+no other styling hook, and comment why it is needed.
+
 ---
 
 ## 6. Composition API: reactivity
@@ -226,9 +251,35 @@ reactivity on reassignment/destructuring and can't hold primitives — which is 
 > pick one approach per module and stay consistent rather than mixing both for the
 > same kind of state.
 
-**`VUE-RX-02` (SHOULD)** Don't destructure a `reactive` object or props (loses
-reactivity). Use `toRefs`/`toRef`, or keep accessing via the object. Props
-destructuring with reactivity is supported in newer Vue but be explicit/consistent.
+**`VUE-RX-02` (SHOULD)** Don't destructure a **`reactive()` object** — the
+destructured bindings are plain values disconnected from the source; use
+`toRefs`/`toRef` or keep accessing via the object. For **props**, the behavior is
+version-dependent:
+
+- **Vue 3.5+** — reactive props destructure is **stable and enabled by
+  default**: destructuring `defineProps()` keeps reactivity, because the
+  compiler rewrites accesses to destructured variables into `props.x` within the
+  same `<script setup>` block. JavaScript default-value syntax
+  (`const { count = 0 } = defineProps<{ count?: number }>()`) replaces
+  `withDefaults`.
+- **Pre-3.5** (or with the destructure transform disabled) — destructured props
+  are plain constants captured once and never update. Don't destructure; access
+  `props.x` or use `toRefs`.
+
+Even in 3.5+, a destructured prop passed **into a function** is passed by value.
+When handing one to `watch()` or a composable, wrap it in a getter so the callee
+receives a reactive source (the compiler warns on the bare form):
+
+```ts
+const { foo } = defineProps<{ foo: string }>()
+
+watch(() => foo, () => { /* ... */ })  // ✅ getter — changes tracked
+useComposable(() => foo)               // ✅ callee unwraps with toValue()
+watch(foo, () => { /* ... */ })        // ❌ plain value — compiler warning
+```
+
+Be explicit about which behavior the project's minimum Vue version guarantees,
+and apply one style consistently.
 
 **`VUE-RX-03` (SHOULD)** Don't mutate state outside its owner. Child components must
 **not** mutate props (one-way data flow, §7); use a `computed` or local copy, and
@@ -254,6 +305,9 @@ const emit = defineEmits<{
 
 **Why type-based:** the compiler validates prop/emit usage at build time
 (`VUE-A-02` satisfied with full static types), and consumers get IntelliSense.
+On Vue 3.5+, reactive props destructure with native default values
+(`const { count = 0 } = defineProps<…>()`) is an equally valid alternative to
+`withDefaults` — see `VUE-RX-02`; pick one style per project.
 
 **`VUE-PROP-02` (MUST)** Treat props as **read-only**. Never assign to a prop —
 mutating props breaks one-way data flow and triggers warnings. Derive a `computed`
@@ -286,6 +340,15 @@ leaks and races.
 DOM/subscription setup and teardown; always remove listeners/intervals/observers
 in `onUnmounted` to prevent memory leaks (`GEN-DEF-15`).
 
+**`VUE-CW-05` (SHOULD NOT)** Don't trigger one watcher from another watcher's
+callback — watcher A mutates state that watcher B watches, which mutates state
+watcher C watches. Cascading watchers form an implicit, hard-to-trace update
+chain: the data flow is invisible at any single call site, intermediate states
+are observable, re-runs multiply, and ordering/infinite-loop bugs appear.
+Restructure instead: derive values with `computed` (chains of pure derivation
+are explicit and safe), or merge the logic into a single watcher with multiple
+explicit sources (`watch([a, b], …)`).
+
 **Computed pros:** cached, declarative, dependency-tracked. **Cons:** must be pure
 and synchronous — for async/side-effects use `watch`.
 
@@ -316,6 +379,38 @@ export function useMouse() {
 }
 ```
 
+**`VUE-COMP-03` (SHOULD)** Accept flexible reactive inputs as
+`MaybeRefOrGetter<T>` (plain value, ref, or getter) and unwrap with `toValue()`
+**inside** the tracking effect (`watchEffect`, `computed`, or a watcher getter).
+Unwrapping outside the effect reads the value once — subsequent changes are not
+tracked and the composable silently goes stale.
+
+```ts
+import { toValue, watchEffect, type MaybeRefOrGetter } from 'vue'
+
+export function useTitle(title: MaybeRefOrGetter<string>) {
+  watchEffect(() => {
+    document.title = toValue(title) // read inside the effect → tracked
+  })
+}
+```
+
+**`VUE-COMP-04` (MUST)** Call composables **synchronously** at the top level of
+`setup()`/`<script setup>` (or inside lifecycle hooks). Vue associates lifecycle
+registrations and `provide`/`inject` with the *currently active component
+instance*, which is only set during synchronous setup — this is instance-based,
+**not** call-order-based like React hooks. Calls in async continuations, timers,
+or event handlers run with no active instance: their `onMounted`/`onUnmounted`
+registrations and injections fail (with a warning at best, a silent leak at
+worst). The one exception: `<script setup>` restores the instance context after
+`await`; a plain `setup()` function does not.
+
+**`VUE-COMP-05` (SHOULD)** Design async composables to *return* reactive result
+state — `{ data, error, isLoading }`-shaped refs — rather than returning a bare
+promise and assuming every caller `catch`es rejections. Callers bind the refs
+directly in templates; failures become renderable state instead of unhandled
+promise rejections, and loading UX is uniform across call sites.
+
 ---
 
 ## 10. State management (Pinia)
@@ -337,6 +432,35 @@ of change → predictable, testable, traceable). Destructure store state with
 dedup of API data) into Pinia by hand — consider a data-fetching/query library
 (e.g. TanStack Query/`@pinia/colada`) for that, and keep Pinia for genuine client
 state. (Separation of concerns, `GEN-PRIN-05`.)
+
+**`VUE-STATE-05` (MUST)** In setup stores, **return every state ref** from the
+setup function. Pinia registers only returned refs as `$state`; an unreturned
+"private" ref is invisible to SSR state serialization/hydration, devtools, and
+plugins (persistence, reset) — its value silently desyncs between server and
+client. If encapsulation is wanted, return the ref anyway and expose a `computed`
+view for consumers, or move the private logic into a plain composable used by
+the store.
+
+**`VUE-STATE-06` (MUST NOT)** Don't wrap the refs a setup store returns in
+`readonly()`. The returned refs **are** the store's `$state`; a readonly wrapper
+means Pinia itself can no longer write into them, breaking `$patch`, SSR
+hydration, and state-writing plugins. Enforce mutate-through-actions
+(`VUE-STATE-03`) by convention and review, or expose separate readonly
+`computed` views alongside the (returned, writable) state refs.
+
+**`VUE-STATE-07` (SHOULD NOT)** Don't store or return request-scoped framework
+objects — `useRoute()`/`useRouter()` results, request headers, other per-request
+composables or injections — as store state. Pinia explicitly warns against
+returning them from setup stores; captured request-scoped objects can leak
+across concurrent requests (and users) under SSR, and they don't belong to the
+store's state anyway. Call `useRoute()`/`useRouter()` at the component or
+action call site where they're needed.
+
+**`VUE-STATE-08` (MUST)** Don't call the built-in `$reset()` on a setup store —
+Pinia implements it only for option stores (where `state()` can be re-invoked);
+on a setup store it **throws at runtime**. Define an explicit `$reset` action
+that reassigns each state ref to its initial value (or install a plugin that
+provides one) and return it from the store.
 
 ---
 
@@ -402,6 +526,91 @@ data structures to avoid deep-reactivity overhead.
 **`VUE-PERF-05` (CONSIDER)** Use `<KeepAlive>` to cache expensive component
 instances across toggles, and virtual scrolling for very long lists.
 
+**`VUE-PERF-06` (SHOULD)** Wrap non-reactive third-party class instances — map,
+chart, and editor SDK objects (a MapLibre/Leaflet map, a Chart.js chart, an
+editor instance) — in `markRaw()` before storing them in refs, `reactive` state,
+or Pinia stores, and hold them in a `shallowRef` (`VUE-PERF-04`). Deep-proxying
+such instances is pure overhead at best; instances with circular internals, DOM
+references, or identity-sensitive checks (`this === instance`) break outright
+when accessed through a reactive Proxy.
+
+```ts
+import { markRaw, shallowRef } from 'vue'
+
+const map = shallowRef<maplibregl.Map>()
+onMounted(() => {
+  map.value = markRaw(new maplibregl.Map({ container: el.value! }))
+})
+```
+
+---
+
+## 12a. Server-side rendering (SSR) and hydration
+
+Applies whenever components render on the server (Vue SSR, Nuxt, or another
+meta-framework). During hydration the client re-renders and must produce the
+**same HTML** the server sent; mismatches cause hydration warnings, full
+client re-renders, and subtle DOM corruption.
+
+**`VUE-SSR-01` (MUST)** Keep nondeterministic values out of render-driving code:
+`Date.now()`, `Math.random()`, and ambient locale/timezone-dependent formatting
+(`toLocaleString()` without an explicit locale) produce different output on the
+server and the client → hydration mismatch. Compute such values in `onMounted`
+(client-only, after hydration) or use SSR-stable inputs: pass an explicit
+locale/timezone, snapshot the time once on the server and transfer it, seed any
+randomness deterministically.
+
+**`VUE-SSR-02` (SHOULD)** Use `useId()` (Vue 3.5+) to generate unique element IDs
+(form control/`<label for>` pairs, `aria-describedby` targets). It is stable
+across server and client renders — unlike module-level counters, which advance
+independently in each environment and desynchronize the IDs.
+
+**`VUE-SSR-03` (SHOULD)** Treat `<Teleport>` specially under SSR: teleported
+content is **not** rendered in place in the server output, so the teleport
+target must be handled by the framework or the teleport deferred to the client.
+Meta-frameworks support specific targets only — Nuxt SSR-renders teleports to
+the `#teleports` target; other targets need a client-only wrapper (e.g.
+`<ClientOnly>`) or a client-conditional `disabled`/mount. Keep SEO-critical
+content in the normal document flow, never inside a teleport.
+
+**`VUE-SSR-04` (MUST)** Put DOM-touching side effects and browser-only API access
+(`window`, `document`, `localStorage`, `navigator`, element measurement) in
+`onMounted`/`onBeforeMount` — which never run on the server — or behind explicit
+client-only guards. `setup()`/`<script setup>` executes on the server too, where
+none of these globals exist; an unguarded access is a `ReferenceError` that
+aborts server rendering.
+
+### SSR meta-frameworks (Nuxt)
+
+Nuxt-specific rules — apply only when the project uses Nuxt.
+
+**`VUE-NUXT-01` (MUST)** Fetch data needed during SSR with `useFetch`/
+`useAsyncData`: they run on the server, transfer the result to the client in the
+payload, and skip the duplicate client fetch. A bare `$fetch` at the top level
+of `setup` executes on the server **and again** on the client (double-fetch, no
+payload transfer, possible state mismatch). Reserve `$fetch` for user-triggered
+actions (event handlers, form submits) and for calls inside a `useAsyncData`
+handler.
+
+**`VUE-NUXT-02` (SHOULD)** Give `useAsyncData`/`useFetch` explicit, stable keys.
+Auto-generated keys are derived from file and line: opaque in devtools and
+payloads, invalidated by unrelated refactors (moving the call changes the key),
+and unable to share cached data between call sites that intentionally request
+the same thing.
+
+**`VUE-NUXT-03` (MUST)** In Nuxt 3 API routes (`server/`), signal failures with
+`throw createError({ statusCode, statusMessage })`. Keep `statusMessage` short
+and **static** — never interpolate dynamic user input into it (reflected-content
+risk, HTTP status-line semantics). A `message` passed on an API-route error does
+not propagate to the client in Nuxt 3; put structured client-facing detail in
+the `data` property instead.
+
+> **Note:** h3 v2 moves toward carrying the error message in the JSON body —
+> revisit this rule on the next major Nuxt/h3 upgrade.
+
+Type checking: `vue-tsc --noEmit` in CI is already mandated by `VUE-TOOL-01`; it
+applies unchanged to Nuxt projects (`nuxi typecheck` runs it).
+
 ---
 
 ## 13. Security
@@ -461,6 +670,26 @@ in component tests so accessibility is verified as part of behavior.
 
 ---
 
+## 13c. Internationalization (i18n)
+
+Applies to applications with localization requirements (e.g. `vue-i18n`).
+
+**`VUE-I18N-01` (SHOULD)** Route **all** user-facing strings through the i18n
+layer — including the strings a visible-copy review misses: `aria-label`s,
+tooltips, toast/snackbar messages, `placeholder`s, validation messages, `alt`
+text, and `document.title`. Keep locale files complete in CI: verify that every
+key exists in every locale (missing-key check) so untranslated strings never
+ship silently.
+
+**`VUE-I18N-02` (MUST NOT)** Never build plural or composed phrases by string
+concatenation (`count + ' ' + noun`, fragments joined around variables). Plural
+rules, word order, and grammatical agreement differ per language — English's
+two plural forms are the exception, not the rule. Use the i18n library's
+pluralization (message with plural forms selected by `count`) and named
+interpolation parameters, so translators control the full sentence.
+
+---
+
 ## 14. Testing
 
 See [testing](../05-testing.md). Vue-specific:
@@ -484,14 +713,32 @@ tests.
 - Single-word component names; abbreviated names.
 - `v-if` + `v-for` on the same element; missing/index `:key`.
 - Untyped/`['prop']`-array prop definitions in committed code.
-- Mutating props or `reactive` state from a child; destructuring `reactive`/props
-  and losing reactivity.
+- Mutating props or `reactive` state from a child; destructuring `reactive` (or
+  props pre-3.5) and losing reactivity; passing a destructured prop to
+  `watch`/composables without a getter.
 - Complex logic in templates instead of `computed`/methods; giant computed props.
 - Using `watch` to derive what a `computed` should express; side effects/async in
-  `computed`.
+  `computed`; watchers triggering other watchers (cascading update chains).
+- Composables called after `await` (outside `<script setup>`), in timers, or in
+  event handlers; composables that accept only raw values instead of
+  `MaybeRefOrGetter` + `toValue()`.
 - Global Pinia state for everything; mutating store state outside actions; losing
   reactivity by destructuring a store without `storeToRefs`.
-- Unscoped styles leaking globally.
+- Setup stores with unreturned "private" state refs or `readonly()`-wrapped
+  returned refs; router/route or other request-scoped objects kept in store
+  state; calling the built-in `$reset()` on a setup store.
+- Unscoped styles leaking globally; `:deep()` reaching into a child component's
+  internals instead of a CSS-custom-property/prop/slot theming API.
+- Third-party SDK instances (maps, charts, editors) stored in reactive state
+  without `markRaw()` + `shallowRef`.
+- `Date.now()`/`Math.random()`/ambient locale formatting in SSR-rendered output
+  (hydration mismatch); browser APIs touched in `setup` (SSR crash);
+  SEO-critical content inside a `<Teleport>`.
+- Nuxt: bare `$fetch` at setup top level (double-fetch); keyless `useAsyncData`;
+  dynamic user input in `createError`'s `statusMessage`.
+- Hardcoded user-facing strings bypassing i18n (aria-labels, toasts,
+  placeholders, validation messages); `count + noun` concatenation instead of
+  i18n pluralization.
 - `v-html` / dynamic `<component :is>` / `:href` with untrusted input.
 - Reaching into `$refs`/`$parent`/child internals instead of props/emits/slots.
 - Not cleaning up listeners/timers in `onUnmounted` (leaks).
@@ -514,20 +761,33 @@ tests.
       prefixes; general→specific naming; self-closing; PascalCase in templates; full
       words; camelCase props; one attribute/line; simple template expressions; split
       computeds; quoted attrs; consistent directive shorthands.
-- [ ] `<script setup lang="ts">`; consistent block order; code grouped by concern.
-- [ ] `ref` as default; no destructuring `reactive`/props without `toRefs`; one-way
-      data flow (props read-only).
+- [ ] `<script setup lang="ts">`; consistent block order; code grouped by concern;
+      no `:deep()` into child internals (theming via CSS vars/props/slots).
+- [ ] `ref` as default; no destructuring `reactive` (or props pre-3.5); destructured
+      props getter-wrapped for `watch`/composables; one-way data flow (props
+      read-only).
 - [ ] Type-based `defineProps`/`defineEmits` + `withDefaults`; `defineModel` for
       `v-model`; literal-union prop types.
 - [ ] `computed` (pure) for derived state; `watch`/`watchEffect` for side effects
-      with cleanup; teardown in `onUnmounted`.
-- [ ] Reusable logic in focused composables (not mixins) with their own cleanup.
+      with cleanup; no watcher-triggers-watcher cascades; teardown in `onUnmounted`.
+- [ ] Reusable logic in focused composables (not mixins) with their own cleanup;
+      called synchronously in setup; `MaybeRefOrGetter` inputs + `toValue()` inside
+      effects; async composables return `{ data, error, isLoading }`.
 - [ ] Pinia setup-stores for shared state; mutate via actions; `storeToRefs`;
-      local state stays local; server cache in a query lib.
+      all state refs returned (not `readonly()`-wrapped); no route/router in state;
+      custom `$reset` for setup stores; local state stays local; server cache in a
+      query lib.
 - [ ] `v-show` vs `v-if` chosen by toggle frequency; loose coupling via
       props/emits/slots.
 - [ ] Keyed lists; lazy/code-split heavy routes/components; `shallowRef` for big
-      data; `v-memo`/`KeepAlive`/virtual scroll where measured.
+      data; `markRaw` for third-party SDK instances; `v-memo`/`KeepAlive`/virtual
+      scroll where measured.
+- [ ] SSR: deterministic render output (no `Date.now()`/`Math.random()`/ambient
+      locale); `useId()` for element IDs; teleports SSR-handled or client-only;
+      browser APIs only in `onMounted`/client guards.
+- [ ] Nuxt: `useFetch`/`useAsyncData` with explicit keys for SSR data ($fetch only
+      for user actions); `createError` with static `statusMessage`, detail in
+      `data`.
 - [ ] No `v-html`/dynamic component/`:href` with untrusted input; schema-validate
       external data; no secrets in the bundle.
 - [ ] Named, minimally-scoped slots; slot props documented as contract.
@@ -535,6 +795,9 @@ tests.
       on failure.
 - [ ] Accessibility: semantic HTML; labeled controls; keyboard operable; focus
       managed on dialogs/route changes.
+- [ ] i18n (when localized): all user-facing strings — incl. aria-labels, tooltips,
+      toasts, placeholders, validation — through i18n; locale files complete in CI;
+      i18n pluralization, no `count + noun` concatenation.
 - [ ] Vitest + VTU/Testing-Library behavior tests; isolated composable/store tests;
       few Playwright E2E flows.
 
@@ -547,8 +810,15 @@ tests.
 - Vue Style Guide, Priority B (Strongly Recommended) — https://vuejs.org/style-guide/rules-strongly-recommended.html
 - Composition API & `<script setup>` — https://vuejs.org/api/sfc-script-setup.html
 - Reactivity fundamentals (`ref`/`reactive`) — https://vuejs.org/guide/essentials/reactivity-fundamentals.html
+- List rendering (`v-for` with `v-if` precedence) — https://vuejs.org/guide/essentials/list.html
+- Props (Reactive Props Destructure, 3.5+) — https://vuejs.org/guide/components/props.html
 - Composables — https://vuejs.org/guide/reusability/composables.html
+- Server-Side Rendering guide (hydration) — https://vuejs.org/guide/scaling-up/ssr.html
 - Pinia — https://pinia.vuejs.org/
+- Pinia core concepts (setup stores, state) — https://pinia.vuejs.org/core-concepts/
 - Vue Security guide — https://vuejs.org/guide/best-practices/security.html
 - Performance guide — https://vuejs.org/guide/best-practices/performance.html
+- Nuxt data fetching — https://nuxt.com/docs/getting-started/data-fetching
+- Nuxt error handling — https://nuxt.com/docs/getting-started/error-handling
+- Vue I18n — https://vue-i18n.intlify.dev/
 - eslint-plugin-vue — https://eslint.vuejs.org/
