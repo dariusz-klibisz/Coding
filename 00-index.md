@@ -61,6 +61,9 @@ Start here, then **load only what you need**. See
 | `docker-compose*.yml` / `compose.yaml` | [`languages/docker.md`](languages/docker.md) (+ YAML) + [`checklists/docker.md`](checklists/docker.md) |
 | `.yml` / `.yaml` (other) | [`languages/yaml.md`](languages/yaml.md) + [`checklists/yaml.md`](checklists/yaml.md) |
 | `.gd` (GDScript) | [`languages/gdscript.md`](languages/gdscript.md) + [`checklists/gdscript.md`](checklists/gdscript.md) + [`13-game-runtime-and-determinism.md`](13-game-runtime-and-determinism.md) |
+| `.tscn` / `.tres` (Godot scenes/resources) | [`languages/gdscript.md`](languages/gdscript.md) §7–8, §18 (composition, organization, version control) |
+| `.gdshader` | [`languages/gdscript.md`](languages/gdscript.md) + [`13-game-runtime-and-determinism.md`](13-game-runtime-and-determinism.md) §5 (draw calls, batching, shader stutter) |
+| `project.godot` | [`languages/gdscript.md`](languages/gdscript.md) §8–10, §18 (organization, autoloads, input, VCS/CI) |
 
 ---
 
@@ -97,7 +100,7 @@ added to `languages/` without renumbering anything in the root.
 | [`languages/sql.md`](languages/sql.md) | SQL / PostgreSQL 13+ & PostGIS 3 | `SQL` | PostgreSQL docs, PostGIS docs, PG wiki "Don't Do This" |
 | [`languages/docker.md`](languages/docker.md) | Dockerfile (BuildKit) + Docker Compose v2 | `DOCKER` | Docker "Building best practices", Compose Specification |
 | [`languages/yaml.md`](languages/yaml.md) | YAML 1.2 (config files) | `YAML` | YAML 1.2.2 spec, yamllint |
-| [`languages/gdscript.md`](languages/gdscript.md) | GDScript / Godot 4.2+ | `GD` | Godot Engine official documentation |
+| [`languages/gdscript.md`](languages/gdscript.md) | GDScript / Godot 4.x (validated against 4.7) | `GD` | Godot Engine official documentation |
 | [`languages/_template.md`](languages/_template.md) | — | — | Skeleton for adding a new language |
 
 ## Checklists (compact pre-delivery review gates)

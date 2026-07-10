@@ -53,7 +53,7 @@ trade-offs.
 | [`languages/sql.md`](languages/sql.md) | SQL / PostgreSQL & PostGIS | `SQL` |
 | [`languages/docker.md`](languages/docker.md) | Dockerfile + Docker Compose | `DOCKER` |
 | [`languages/yaml.md`](languages/yaml.md) | YAML | `YAML` |
-| [`languages/gdscript.md`](languages/gdscript.md) | GDScript / Godot 4.2+ | `GD` |
+| [`languages/gdscript.md`](languages/gdscript.md) | GDScript / Godot 4.x | `GD` |
 | [`languages/_template.md`](languages/_template.md) | Skeleton for new languages | — |
 
 ### Checklists — compact pre-delivery review gates

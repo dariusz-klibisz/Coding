@@ -77,10 +77,25 @@ relevant rules; this file is the consolidated index.
 - Glenn Fiedler, "Fix Your Timestep!" — https://gafferongames.com/post/fix_your_timestep/
 - Glenn Fiedler, "Deterministic Lockstep" — https://gafferongames.com/post/deterministic_lockstep/
 - Glenn Fiedler, "Floating Point Determinism" — https://gafferongames.com/post/floating_point_determinism/
+- Paul Bettner & Mark Terrano, "1500 Archers on a 28.8: Network Programming in
+  Age of Empires and Beyond" — https://www.gamedeveloper.com/programming/1500-archers-on-a-28-8-network-programming-in-age-of-empires-and-beyond
+- Factorio, "Friday Facts #302 — The multiplayer megapacket" — https://www.factorio.com/blog/post/fff-302
+- Photon Quantum (fixed-point deterministic engine) — https://doc.photonengine.com/quantum/current/getting-started/quantum-intro
+- Squirrel Eiserloh, GDC "Math for Game Programmers: Noise-Based RNG" — https://gdcvault.com/play/1024365/Math-for-Game-Programmers-Noise
 - Robert Nystrom, *Game Programming Patterns* — https://gameprogrammingpatterns.com/
+- Richard Fabian, *Data-Oriented Design* — https://www.dataorienteddesign.com/dodmain/
+- Gary Bernhardt, "Functional Core, Imperative Shell" — https://www.destroyallsoftware.com/screencasts/catalog/functional-core-imperative-shell
+- Alan Wolfe (demofox), "Demystifying Floating Point Precision" — https://blog.demofox.org/2017/11/21/floating-point-precision/
 - Godot Docs, "Optimization: General" — https://docs.godotengine.org/en/stable/tutorials/performance/general_optimization.html
-- Godot Docs, "Physics interpolation" — https://docs.godotengine.org/en/stable/tutorials/physics/physics_interpolation.html
+- Godot Docs, "Physics Interpolation" — https://docs.godotengine.org/en/stable/tutorials/physics/interpolation/index.html
+- Godot Docs, "Troubleshooting physics issues" — https://docs.godotengine.org/en/stable/tutorials/physics/troubleshooting_physics_issues.html
+- Godot Docs, "Using Jolt Physics" — https://docs.godotengine.org/en/stable/tutorials/physics/using_jolt_physics.html
+- Godot Docs, "Large world coordinates" (float precision) — https://docs.godotengine.org/en/stable/tutorials/physics/large_world_coordinates.html
+- Godot Docs, "Reducing stutter from shader (pipeline) compilations" — https://docs.godotengine.org/en/stable/tutorials/performance/pipeline_compilations.html
 - Godot Docs, "Using multiple threads" — https://docs.godotengine.org/en/stable/tutorials/performance/using_multiple_threads.html
+- Android vitals, "Slow rendering" (16 ms target; frozen frames > 700 ms) — https://developer.android.com/topic/performance/vitals/render
+- Android Dynamic Performance Framework (thermal/performance-hint APIs) — https://developer.android.com/games/optimize/adpf
+- Google, "Develop with Godot" (Android) — https://developer.android.com/games/engines/godot/godot-configure
 
 ## Version control, CI/CD
 
@@ -190,10 +205,25 @@ relevant rules; this file is the consolidated index.
 - Godot Docs, "Godot notifications" (node lifecycle order) — https://docs.godotengine.org/en/stable/tutorials/best_practices/godot_notifications.html
 - Godot Docs, "Using signals" — https://docs.godotengine.org/en/stable/getting_started/step_by_step/signals.html
 - Godot Docs, "Autoloads (singletons)" — https://docs.godotengine.org/en/stable/tutorials/scripting/singletons_autoload.html
+- Godot Docs, "Autoloads versus regular nodes" — https://docs.godotengine.org/en/stable/tutorials/best_practices/autoloads_versus_regular_nodes.html
+- Godot Docs, "Scene organization" — https://docs.godotengine.org/en/stable/tutorials/best_practices/scene_organization.html
+- Godot Docs, "When to use scenes versus scripts" — https://docs.godotengine.org/en/stable/tutorials/best_practices/scenes_versus_scripts.html
+- Godot Docs, "Project organization" — https://docs.godotengine.org/en/stable/tutorials/best_practices/project_organization.html
+- Godot Docs, "Data preferences" — https://docs.godotengine.org/en/stable/tutorials/best_practices/data_preferences.html
+- Godot Docs, "Version control systems" — https://docs.godotengine.org/en/stable/tutorials/best_practices/version_control_systems.html
+- Godot Docs, "Using InputEvent" — https://docs.godotengine.org/en/stable/tutorials/inputs/inputevent.html
+- Godot Docs, "Background loading" — https://docs.godotengine.org/en/stable/tutorials/io/background_loading.html
 - Godot Docs, "Thread-safe APIs" — https://docs.godotengine.org/en/stable/tutorials/performance/thread_safe_apis.html
 - Godot Docs, "Resources" — https://docs.godotengine.org/en/stable/tutorials/scripting/resources.html
 - Godot Docs, "Best Practices: Node alternatives" — https://docs.godotengine.org/en/stable/tutorials/best_practices/node_alternatives.html
+- GDScript Toolkit (gdformat/gdlint) — https://github.com/Scony/godot-gdscript-toolkit
 - GUT (Godot Unit Test) — https://github.com/bitwes/Gut
+- GdUnit4 (third-party test framework) — https://github.com/godot-gdunit-labs/gdUnit4
+- godot-ci (headless CI images) — https://github.com/abarichello/godot-ci
+- Sentry Godot SDK — https://docs.sentry.io/platforms/godot/
+- GDQuest, GDScript guidelines (principles; syntax partially Godot 3-era) — https://gdquest.gitbook.io/gdquests-guidelines/godot-gdscript-guidelines
+- Game Accessibility Guidelines — https://gameaccessibilityguidelines.com/
+- Xbox Accessibility Guidelines — https://learn.microsoft.com/en-us/gaming/accessibility/guidelines
 
 ### SQL / PostgreSQL / PostGIS
 
