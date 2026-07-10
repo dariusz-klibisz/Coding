@@ -39,6 +39,7 @@ trade-offs.
 | [`10-observability.md`](10-observability.md) | `GEN-OBS` | Logging, structured logs, levels, metrics, tracing, health checks, alerting |
 | [`11-tooling-and-automation.md`](11-tooling-and-automation.md) | `GEN-TOOL` | Formatters, linters, static analysis, pre-commit, CI design, dependency/secret automation |
 | [`12-ai-agent-usage.md`](12-ai-agent-usage.md) | `GEN-AI` | Agent workflow, guardrails, priority order, when to ask |
+| [`13-game-runtime-and-determinism.md`](13-game-runtime-and-determinism.md) | `GEN-GAME` | Frame budget, fixed timestep, object pooling, mobile constraints, seeded-RNG discipline, deterministic ordering, sim/presentation separation |
 
 ### Languages — extend the general docs
 
@@ -52,6 +53,7 @@ trade-offs.
 | [`languages/sql.md`](languages/sql.md) | SQL / PostgreSQL & PostGIS | `SQL` |
 | [`languages/docker.md`](languages/docker.md) | Dockerfile + Docker Compose | `DOCKER` |
 | [`languages/yaml.md`](languages/yaml.md) | YAML | `YAML` |
+| [`languages/gdscript.md`](languages/gdscript.md) | GDScript / Godot 4.2+ | `GD` |
 | [`languages/_template.md`](languages/_template.md) | Skeleton for new languages | — |
 
 ### Checklists — compact pre-delivery review gates
@@ -64,7 +66,8 @@ trade-offs.
 [`checklists/vue.md`](checklists/vue.md),
 [`checklists/sql.md`](checklists/sql.md),
 [`checklists/docker.md`](checklists/docker.md),
-[`checklists/yaml.md`](checklists/yaml.md).
+[`checklists/yaml.md`](checklists/yaml.md),
+[`checklists/gdscript.md`](checklists/gdscript.md).
 
 [`references.md`](references.md) collects the authoritative sources behind the rules.
 
@@ -93,6 +96,7 @@ Start from the **task in front of you**, then load only what you need.
   | `.sql` | [`languages/sql.md`](languages/sql.md) + [`checklists/sql.md`](checklists/sql.md) |
   | `Dockerfile*` / `docker-compose*.yml` | [`languages/docker.md`](languages/docker.md) + [`checklists/docker.md`](checklists/docker.md) |
   | `.yml` / `.yaml` | [`languages/yaml.md`](languages/yaml.md) + [`checklists/yaml.md`](checklists/yaml.md) |
+  | `.gd` | [`languages/gdscript.md`](languages/gdscript.md) + [`checklists/gdscript.md`](checklists/gdscript.md) |
 
 - **A cross-cutting concern** (security, testing, errors, concurrency, …) → load the
   matching root doc (`01`–`11`).

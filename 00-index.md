@@ -60,6 +60,7 @@ Start here, then **load only what you need**. See
 | `Dockerfile*` | [`languages/docker.md`](languages/docker.md) + [`checklists/docker.md`](checklists/docker.md) |
 | `docker-compose*.yml` / `compose.yaml` | [`languages/docker.md`](languages/docker.md) (+ YAML) + [`checklists/docker.md`](checklists/docker.md) |
 | `.yml` / `.yaml` (other) | [`languages/yaml.md`](languages/yaml.md) + [`checklists/yaml.md`](checklists/yaml.md) |
+| `.gd` (GDScript) | [`languages/gdscript.md`](languages/gdscript.md) + [`checklists/gdscript.md`](checklists/gdscript.md) + [`13-game-runtime-and-determinism.md`](13-game-runtime-and-determinism.md) |
 
 ---
 
@@ -79,6 +80,7 @@ Start here, then **load only what you need**. See
 | [`10-observability.md`](10-observability.md) | `GEN-OBS` | Logging, structured logs, levels, metrics, tracing, health checks, alerting | making code diagnosable in prod |
 | [`11-tooling-and-automation.md`](11-tooling-and-automation.md) | `GEN-TOOL` | Formatters, linters, static analysis, pre-commit, CI design, dependency/secret automation, baselines | setting up/enforcing tooling |
 | [`12-ai-agent-usage.md`](12-ai-agent-usage.md) | `GEN-AI` | Agent workflow, guardrails, priority order, when to ask | acting as an AI coding agent |
+| [`13-game-runtime-and-determinism.md`](13-game-runtime-and-determinism.md) | `GEN-GAME` | Frame budget, fixed timestep, object pooling, mobile performance, seeded-RNG discipline, deterministic update ordering, sim/presentation separation | real-time game loops; anything requiring reproducible simulation (offline calc, replay, async PvP) |
 
 ## Document map (languages — extend the general docs)
 
@@ -95,6 +97,7 @@ added to `languages/` without renumbering anything in the root.
 | [`languages/sql.md`](languages/sql.md) | SQL / PostgreSQL 13+ & PostGIS 3 | `SQL` | PostgreSQL docs, PostGIS docs, PG wiki "Don't Do This" |
 | [`languages/docker.md`](languages/docker.md) | Dockerfile (BuildKit) + Docker Compose v2 | `DOCKER` | Docker "Building best practices", Compose Specification |
 | [`languages/yaml.md`](languages/yaml.md) | YAML 1.2 (config files) | `YAML` | YAML 1.2.2 spec, yamllint |
+| [`languages/gdscript.md`](languages/gdscript.md) | GDScript / Godot 4.2+ | `GD` | Godot Engine official documentation |
 | [`languages/_template.md`](languages/_template.md) | — | — | Skeleton for adding a new language |
 
 ## Checklists (compact pre-delivery review gates)
@@ -110,6 +113,7 @@ added to `languages/` without renumbering anything in the root.
 | [`checklists/sql.md`](checklists/sql.md) | SQL / PostgreSQL / PostGIS / migrations |
 | [`checklists/docker.md`](checklists/docker.md) | Docker / Compose |
 | [`checklists/yaml.md`](checklists/yaml.md) | YAML |
+| [`checklists/gdscript.md`](checklists/gdscript.md) | GDScript / Godot |
 
 [`references.md`](references.md) collects authoritative sources and authority notes.
 
@@ -129,8 +133,8 @@ Rule IDs are stable identifiers of the form `<PREFIX>-<TOPIC>-<NN>`:
 
 - General docs use `GEN-<AREA>` prefixes (`GEN-PRIN`, `GEN-DEF`, `GEN-ERR`,
   `GEN-SEC`, `GEN-TEST`, `GEN-PERF`, `GEN-CONC`, `GEN-VCS`, `GEN-DOC`, `GEN-OBS`,
-  `GEN-TOOL`, `GEN-AI`).
-- Language docs use a short language prefix (`EC`, `CS`, `PY`, `TS`, `VUE`, `SQL`, `DOCKER`, `YAML`).
+  `GEN-TOOL`, `GEN-AI`, `GEN-GAME`).
+- Language docs use a short language prefix (`EC`, `CS`, `PY`, `TS`, `VUE`, `SQL`, `DOCKER`, `YAML`, `GD`).
 
 Language rules cross-reference the general rules they specialize (e.g.
 `PY-LOG-03` ties to `GEN-OBS-04`). Cite these IDs when justifying changes.

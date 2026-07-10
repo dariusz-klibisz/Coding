@@ -72,6 +72,16 @@ relevant rules; this file is the consolidated index.
 - Leslie Lamport, "Time, Clocks, and the Ordering of Events."
 - ThreadSanitizer — https://github.com/google/sanitizers/wiki/ThreadSanitizerCppManual
 
+## Game runtime performance & determinism
+
+- Glenn Fiedler, "Fix Your Timestep!" — https://gafferongames.com/post/fix_your_timestep/
+- Glenn Fiedler, "Deterministic Lockstep" — https://gafferongames.com/post/deterministic_lockstep/
+- Glenn Fiedler, "Floating Point Determinism" — https://gafferongames.com/post/floating_point_determinism/
+- Robert Nystrom, *Game Programming Patterns* — https://gameprogrammingpatterns.com/
+- Godot Docs, "Optimization: General" — https://docs.godotengine.org/en/stable/tutorials/performance/general_optimization.html
+- Godot Docs, "Physics interpolation" — https://docs.godotengine.org/en/stable/tutorials/physics/physics_interpolation.html
+- Godot Docs, "Using multiple threads" — https://docs.godotengine.org/en/stable/tutorials/performance/using_multiple_threads.html
+
 ## Version control, CI/CD
 
 - DORA / *Accelerate* (Forsgren, Humble, Kim) — https://dora.dev/
@@ -171,6 +181,19 @@ relevant rules; this file is the consolidated index.
 - Nuxt — Data Fetching — https://nuxt.com/docs/getting-started/data-fetching ·
   Error Handling — https://nuxt.com/docs/getting-started/error-handling
 - Vue I18n — https://vue-i18n.intlify.dev/
+
+### GDScript / Godot
+
+- Godot Docs, "GDScript reference" — https://docs.godotengine.org/en/stable/tutorials/scripting/gdscript/gdscript_basics.html
+- Godot Docs, "GDScript style guide" — https://docs.godotengine.org/en/stable/tutorials/scripting/gdscript/gdscript_styleguide.html
+- Godot Docs, "Static typing in GDScript" — https://docs.godotengine.org/en/stable/tutorials/scripting/gdscript/static_typing.html
+- Godot Docs, "Godot notifications" (node lifecycle order) — https://docs.godotengine.org/en/stable/tutorials/best_practices/godot_notifications.html
+- Godot Docs, "Using signals" — https://docs.godotengine.org/en/stable/getting_started/step_by_step/signals.html
+- Godot Docs, "Autoloads (singletons)" — https://docs.godotengine.org/en/stable/tutorials/scripting/singletons_autoload.html
+- Godot Docs, "Thread-safe APIs" — https://docs.godotengine.org/en/stable/tutorials/performance/thread_safe_apis.html
+- Godot Docs, "Resources" — https://docs.godotengine.org/en/stable/tutorials/scripting/resources.html
+- Godot Docs, "Best Practices: Node alternatives" — https://docs.godotengine.org/en/stable/tutorials/best_practices/node_alternatives.html
+- GUT (Godot Unit Test) — https://github.com/bitwes/Gut
 
 ### SQL / PostgreSQL / PostGIS
 
