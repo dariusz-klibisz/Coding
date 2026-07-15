@@ -50,6 +50,15 @@ trade-offs.
 | [`languages/python.md`](languages/python.md) | Python 3 (3.10+) | `PY` |
 | [`languages/typescript.md`](languages/typescript.md) | TypeScript 5.x | `TS` |
 | [`languages/vue.md`](languages/vue.md) | Vue 3 SFC + TS | `VUE` |
+| [`languages/html-css.md`](languages/html-css.md) | HTML5 + modern CSS3 | `HTMLCSS` |
+| [`languages/java.md`](languages/java.md) | Java 17+ (LTS) | `JAVA` |
+| [`languages/go.md`](languages/go.md) | Go 1.21+ | `GO` |
+| [`languages/rust.md`](languages/rust.md) | Rust 2021+ edition | `RS` |
+| [`languages/swift.md`](languages/swift.md) | Swift 5.9+/6.x | `SWIFT` |
+| [`languages/kotlin.md`](languages/kotlin.md) | Kotlin 1.9+/2.x (Android/JVM) | `KT` |
+| [`languages/dart-flutter.md`](languages/dart-flutter.md) | Dart 3.x + Flutter | `DART` |
+| [`languages/bash.md`](languages/bash.md) | Bash 4+ / POSIX shell | `SH` |
+| [`languages/terraform.md`](languages/terraform.md) | Terraform (HCL2) | `TF` |
 | [`languages/sql.md`](languages/sql.md) | SQL / PostgreSQL & PostGIS | `SQL` |
 | [`languages/docker.md`](languages/docker.md) | Dockerfile + Docker Compose | `DOCKER` |
 | [`languages/yaml.md`](languages/yaml.md) | YAML | `YAML` |
@@ -64,6 +73,15 @@ trade-offs.
 [`checklists/python.md`](checklists/python.md),
 [`checklists/typescript.md`](checklists/typescript.md),
 [`checklists/vue.md`](checklists/vue.md),
+[`checklists/html-css.md`](checklists/html-css.md),
+[`checklists/java.md`](checklists/java.md),
+[`checklists/go.md`](checklists/go.md),
+[`checklists/rust.md`](checklists/rust.md),
+[`checklists/swift.md`](checklists/swift.md),
+[`checklists/kotlin.md`](checklists/kotlin.md),
+[`checklists/dart-flutter.md`](checklists/dart-flutter.md),
+[`checklists/bash.md`](checklists/bash.md),
+[`checklists/terraform.md`](checklists/terraform.md),
 [`checklists/sql.md`](checklists/sql.md),
 [`checklists/docker.md`](checklists/docker.md),
 [`checklists/yaml.md`](checklists/yaml.md),
@@ -91,7 +109,16 @@ Start from the **task in front of you**, then load only what you need.
   | `.py` | [`languages/python.md`](languages/python.md) + [`checklists/python.md`](checklists/python.md) |
   | `.ts` / `.tsx` | [`languages/typescript.md`](languages/typescript.md) + [`checklists/typescript.md`](checklists/typescript.md) |
   | `.vue` | [`languages/vue.md`](languages/vue.md) (+ TypeScript) + [`checklists/vue.md`](checklists/vue.md) |
+  | `.html` / `.css` | [`languages/html-css.md`](languages/html-css.md) + [`checklists/html-css.md`](checklists/html-css.md) |
   | `.cs` | [`languages/csharp.md`](languages/csharp.md) + [`checklists/csharp.md`](checklists/csharp.md) |
+  | `.java` | [`languages/java.md`](languages/java.md) + [`checklists/java.md`](checklists/java.md) |
+  | `.go` | [`languages/go.md`](languages/go.md) + [`checklists/go.md`](checklists/go.md) |
+  | `.rs` | [`languages/rust.md`](languages/rust.md) + [`checklists/rust.md`](checklists/rust.md) |
+  | `.swift` | [`languages/swift.md`](languages/swift.md) + [`checklists/swift.md`](checklists/swift.md) |
+  | `.kt` / `.kts` | [`languages/kotlin.md`](languages/kotlin.md) + [`checklists/kotlin.md`](checklists/kotlin.md) |
+  | `.dart` | [`languages/dart-flutter.md`](languages/dart-flutter.md) + [`checklists/dart-flutter.md`](checklists/dart-flutter.md) |
+  | `.sh` / `.bash` | [`languages/bash.md`](languages/bash.md) + [`checklists/bash.md`](checklists/bash.md) |
+  | `.tf` / `.tfvars` | [`languages/terraform.md`](languages/terraform.md) + [`checklists/terraform.md`](checklists/terraform.md) |
   | `.c` / `.h` | [`languages/embedded-c.md`](languages/embedded-c.md) + [`checklists/embedded-c.md`](checklists/embedded-c.md) |
   | `.sql` | [`languages/sql.md`](languages/sql.md) + [`checklists/sql.md`](checklists/sql.md) |
   | `Dockerfile*` / `docker-compose*.yml` | [`languages/docker.md`](languages/docker.md) + [`checklists/docker.md`](checklists/docker.md) |

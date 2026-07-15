@@ -11,7 +11,7 @@
 ## Table of contents
 
 1. [Security mindset & principles](#1-security-mindset--principles)
-2. [OWASP Top 10 mapping](#2-owasp-top-10-2021-mapping)
+2. [OWASP Top 10 mapping](#2-owasp-top-10-2025-mapping)
 3. [Input validation & injection](#3-input-validation--injection)
 4. [Output encoding](#4-output-encoding)
 5. [Authentication](#5-authentication)
@@ -63,20 +63,29 @@ defects are far cheaper to prevent than to patch):
 
 ---
 
-## 2. OWASP Top 10 (2021) mapping
+## 2. OWASP Top 10 (2025) mapping
+
+The 2025 revision re-ranked several categories, folded SSRF into Broken Access
+Control, and added two new categories (Software Supply-Chain Failures;
+Mishandling of Exceptional Conditions) that this doc already addressed under
+other headings — the table below maps the current official IDs.
 
 | # | Category | Primary defenses (this doc) |
 |---|----------|------------------------------|
-| A01 | Broken Access Control | §6 — enforce authz server-side on every request, deny by default |
-| A02 | Cryptographic Failures | §7 — TLS everywhere, strong algorithms, no plaintext secrets |
-| A03 | Injection | §3, §4 — parameterized queries, encoding, validation |
-| A04 | Insecure Design | §1 — threat modeling, secure design patterns |
-| A05 | Security Misconfiguration | §13 — hardened, minimal, secure defaults |
-| A06 | Vulnerable/Outdated Components | §11 — dependency scanning, patching |
-| A07 | Identification & Auth Failures | §5 — strong auth, MFA, secure session mgmt |
+| A01 | Broken Access Control (now includes SSRF) | §3 — validate/allowlist outbound URLs; §6 — enforce authz server-side on every request, deny by default |
+| A02 | Security Misconfiguration | §13 — hardened, minimal, secure defaults |
+| A03 | Software Supply-Chain Failures | §11 — dependency scanning, patching, SBOM, provenance |
+| A04 | Cryptographic Failures | §7 — TLS everywhere, strong algorithms, no plaintext secrets |
+| A05 | Injection | §3, §4 — parameterized queries, encoding, validation |
+| A06 | Identification & Authentication Failures | §5 — strong auth, MFA, secure session mgmt |
+| A07 | Insecure Design | §1 — threat modeling, secure design patterns |
 | A08 | Software & Data Integrity Failures | §10, §11 — signed artifacts, safe deserialization |
-| A09 | Logging & Monitoring Failures | §12 — log security events, detect anomalies |
-| A10 | Server-Side Request Forgery (SSRF) | §3 — validate/allowlist outbound URLs |
+| A09 | Security Logging & Alerting Failures | §12 — log security events, detect anomalies |
+| A10 | Mishandling of Exceptional Conditions | §12 — no internals leaked to users; see [03-error-handling.md](03-error-handling.md) for the full error-handling discipline (classification, don't-swallow, fail-closed on missing config) |
+
+**Note:** rule IDs in this document (`GEN-SEC-NN`) are stable identifiers of this
+library and are independent of OWASP's own category numbering, which is
+revised periodically (2017 → 2021 → 2025).
 
 ---
 
@@ -171,7 +180,7 @@ brute-force. Salting defeats rainbow tables; memory-hardness defeats GPU/ASIC
 cracking.
 
 **`GEN-SEC-11` (SHOULD)** Support MFA; enforce strong-password policy aligned with
-NIST 800-63B (length over arbitrary complexity, check against breached-password
+NIST 800-63-4 (length over arbitrary complexity, check against breached-password
 lists, no forced periodic rotation without cause).
 
 **`GEN-SEC-12` (MUST)** Rate-limit and lock out / back off on repeated failed
@@ -342,8 +351,8 @@ disabled debug/verbose modes in production, no default/sample credentials,
 unused features/ports/services disabled.
 
 **`GEN-SEC-43` (SHOULD)** Keep security configuration in code/declarative form
-(IaC) and review it; misconfiguration (A05) is among the most common real-world
-causes of breaches.
+(IaC) and review it; misconfiguration (A02:2025) is among the most common
+real-world causes of breaches.
 
 **`GEN-SEC-44` (SHOULD)** Run services as non-root with minimal filesystem and
 network permissions; apply container/OS sandboxing.
@@ -431,11 +440,11 @@ handleWebhook(payload);
 
 ## References
 
-- OWASP Top 10 (2021) — https://owasp.org/Top10/
+- OWASP Top 10 (2025) — https://owasp.org/Top10/2025/
 - OWASP Application Security Verification Standard (ASVS) — https://owasp.org/www-project-application-security-verification-standard/
 - OWASP Cheat Sheet Series — https://cheatsheetseries.owasp.org/
 - OWASP Proactive Controls — https://owasp.org/www-project-proactive-controls/
 - SEI CERT C Coding Standard — https://wiki.sei.cmu.edu/confluence/display/c/
-- NIST SP 800-63B (Digital Identity / authentication) — https://pages.nist.gov/800-63-3/sp800-63b.html
+- NIST SP 800-63-4 (Digital Identity Guidelines) — https://pages.nist.gov/800-63-4/
 - Saltzer & Schroeder, "The Protection of Information in Computer Systems."
 - SLSA supply-chain framework — https://slsa.dev/

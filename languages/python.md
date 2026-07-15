@@ -447,8 +447,13 @@ bytecode in CPython, so threads don't parallelize pure-Python CPU work):
 | **I/O-bound, simpler/blocking libs** | `threading` / `concurrent.futures.ThreadPoolExecutor` |
 | **CPU-bound** | `multiprocessing` / `ProcessPoolExecutor` (or native extensions releasing the GIL) |
 
-> Note: Python 3.13+ offers an experimental free-threaded (no-GIL) build; until it
-> is mainstream, assume the GIL for CPU-bound decisions.
+> Note: Python 3.13 introduced an experimental free-threaded (no-GIL) build
+> (PEP 703); Python 3.14 promoted it to **officially supported** status
+> (PEP 779) — but it remains a separate, opt-in build (`3.14t`), not the
+> default interpreter, and the C-extension ecosystem is still catching up.
+> Until the free-threaded build is the default your project actually ships
+> on, assume the GIL for CPU-bound decisions; re-evaluate per-project once it
+> is.
 
 **`PY-CONC-02` (MUST NOT)** Don't run blocking calls or CPU-heavy work directly in
 an `asyncio` event loop — it stalls all tasks. Offload via `run_in_executor`/

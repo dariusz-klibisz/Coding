@@ -35,14 +35,14 @@ relevant rules; this file is the consolidated index.
 
 ## Security (secure coding)
 
-- OWASP Top 10 (2021) — https://owasp.org/Top10/
+- OWASP Top 10 (2025) — https://owasp.org/Top10/2025/
 - OWASP Application Security Verification Standard (ASVS) — https://owasp.org/www-project-application-security-verification-standard/
 - OWASP Cheat Sheet Series — https://cheatsheetseries.owasp.org/
 - OWASP Proactive Controls — https://owasp.org/www-project-proactive-controls/
 - OWASP Secure Coding Practices Quick Reference — https://owasp.org/www-project-secure-coding-practices-quick-reference-guide/
 - CWE Top 25 — https://cwe.mitre.org/top25/
 - NIST SP 800-218, Secure Software Development Framework — https://csrc.nist.gov/publications/detail/sp/800-218/final
-- NIST SP 800-63B (Digital Identity / authentication) — https://pages.nist.gov/800-63-3/sp800-63b.html
+- NIST SP 800-63-4, Digital Identity Guidelines (final, 2025; supersedes 800-63-3) — https://pages.nist.gov/800-63-4/
 - SEI CERT C Coding Standard — https://wiki.sei.cmu.edu/confluence/display/c/
 - Saltzer & Schroeder, "The Protection of Information in Computer Systems."
 - SLSA supply-chain framework — https://slsa.dev/
@@ -196,6 +196,75 @@ relevant rules; this file is the consolidated index.
 - Nuxt — Data Fetching — https://nuxt.com/docs/getting-started/data-fetching ·
   Error Handling — https://nuxt.com/docs/getting-started/error-handling
 - Vue I18n — https://vue-i18n.intlify.dev/
+
+### HTML / CSS
+
+- WHATWG HTML Living Standard — https://html.spec.whatwg.org/
+- MDN Web Docs, HTML/CSS reference — https://developer.mozilla.org/en-US/docs/Web/HTML · https://developer.mozilla.org/en-US/docs/Web/CSS
+- W3C, WCAG 2.2 — https://www.w3.org/TR/WCAG22/
+- WAI-ARIA Authoring Practices Guide — https://www.w3.org/WAI/ARIA/apg/
+- Stylelint — https://stylelint.io/ · axe-core — https://github.com/dequelabs/axe-core
+
+### Java
+
+- Google Java Style Guide — https://google.github.io/styleguide/javaguide.html
+- Joshua Bloch, *Effective Java*, 3rd ed.
+- Java Language Specification — https://docs.oracle.com/javase/specs/
+- OpenJDK JEPs 395/409/441/444 (records, sealed classes, pattern matching,
+  virtual threads) — https://openjdk.org/jeps/0
+- Error Prone — https://errorprone.info/
+
+### Go
+
+- Effective Go — https://go.dev/doc/effective_go
+- Go Code Review Comments — https://go.dev/wiki/CodeReviewComments
+- The Go Programming Language Specification — https://go.dev/ref/spec
+- Go proverbs — https://go-proverbs.github.io/
+- staticcheck — https://staticcheck.io/ · govulncheck — https://go.dev/doc/tutorial/govulncheck
+
+### Rust
+
+- *The Rust Programming Language* (the Book) — https://doc.rust-lang.org/book/
+- Rust API Guidelines — https://rust-lang.github.io/api-guidelines/
+- The Rustonomicon (`unsafe` Rust) — https://doc.rust-lang.org/nomicon/
+- Clippy lints — https://rust-lang.github.io/rust-clippy/master/
+- The Embedded Rust Book — https://docs.rust-embedded.org/book/
+
+### Swift
+
+- Swift.org, "API Design Guidelines" — https://www.swift.org/documentation/api-design-guidelines/
+- *The Swift Programming Language* — https://docs.swift.org/swift-book/
+- Swift Evolution — https://github.com/swiftlang/swift-evolution
+- Migrating to Swift 6 (strict concurrency) — https://www.swift.org/migration/documentation/migrationguide/
+- SwiftLint — https://github.com/realm/SwiftLint
+
+### Kotlin
+
+- Kotlin official coding conventions — https://kotlinlang.org/docs/coding-conventions.html
+- Android, "Kotlin style guide for Android" — https://developer.android.com/kotlin/style-guide
+- Kotlin docs, "Coroutines guide" — https://kotlinlang.org/docs/coroutines-guide.html
+- ktlint — https://pinterest.github.io/ktlint/ · detekt — https://detekt.dev/
+
+### Dart / Flutter
+
+- Dart, "Effective Dart" — https://dart.dev/effective-dart
+- Dart docs, "Sound null safety" and "Pattern matching" — https://dart.dev/null-safety · https://dart.dev/language/patterns
+- Flutter docs, "State management" — https://docs.flutter.dev/data-and-backend/state-mgmt/intro
+- Flutter docs, "Concurrency in Flutter" (isolates) — https://docs.flutter.dev/perf/isolates
+
+### Bash / shell
+
+- Google Shell Style Guide — https://google.github.io/styleguide/shellguide.html
+- ShellCheck wiki — https://www.shellcheck.net/wiki/
+- GNU Bash Reference Manual — https://www.gnu.org/software/bash/manual/bash.html
+- Bats-core — https://bats-core.readthedocs.io/
+
+### Terraform / HCL
+
+- HashiCorp, Terraform documentation — https://developer.hashicorp.com/terraform/docs
+- HashiCorp, "Terraform Style Guide" — https://developer.hashicorp.com/terraform/language/style
+- HashiCorp, "Standard Module Structure" — https://developer.hashicorp.com/terraform/language/modules/develop/structure
+- tflint — https://github.com/terraform-linters/tflint · tfsec — https://github.com/aquasecurity/tfsec
 
 ### GDScript / Godot
 

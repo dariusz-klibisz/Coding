@@ -45,7 +45,8 @@ full behavioral workflow when applying these standards to real code, read
   routing, the rule-ID scheme, the severity vocabulary, and the conflict-resolution
   order.
 - **Rule IDs** are stable identifiers of the form `<PREFIX>-<TOPIC>-NN`. General docs
-  use `GEN-<AREA>`; language docs use a short prefix (`EC`, `CS`, `PY`, `TS`, `VUE`).
+  use `GEN-<AREA>`; language docs use a short prefix (`EC`, `CS`, `PY`, `TS`, `VUE`,
+  `GO`, `RS`, `SWIFT`, `KT`, `DART`, etc. — see `00-index.md` for the full list).
   Treat existing IDs as durable; do not renumber or reuse them.
 - **Severity vocabulary:** MUST/MUST NOT, SHOULD/SHOULD NOT, MAY/CONSIDER — use these
   exact keywords.

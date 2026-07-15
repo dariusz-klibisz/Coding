@@ -54,7 +54,16 @@ Start here, then **load only what you need**. See
 | `.py` | [`languages/python.md`](languages/python.md) + [`checklists/python.md`](checklists/python.md) |
 | `.ts` / `.tsx` | [`languages/typescript.md`](languages/typescript.md) + [`checklists/typescript.md`](checklists/typescript.md) |
 | `.vue` | [`languages/vue.md`](languages/vue.md) (+ TypeScript) + [`checklists/vue.md`](checklists/vue.md) |
+| `.html` / `.css` | [`languages/html-css.md`](languages/html-css.md) + [`checklists/html-css.md`](checklists/html-css.md) |
 | `.cs` | [`languages/csharp.md`](languages/csharp.md) + [`checklists/csharp.md`](checklists/csharp.md) |
+| `.java` | [`languages/java.md`](languages/java.md) + [`checklists/java.md`](checklists/java.md) |
+| `.go` | [`languages/go.md`](languages/go.md) + [`checklists/go.md`](checklists/go.md) |
+| `.rs` | [`languages/rust.md`](languages/rust.md) + [`checklists/rust.md`](checklists/rust.md) |
+| `.swift` | [`languages/swift.md`](languages/swift.md) + [`checklists/swift.md`](checklists/swift.md) |
+| `.kt` / `.kts` | [`languages/kotlin.md`](languages/kotlin.md) + [`checklists/kotlin.md`](checklists/kotlin.md) |
+| `.dart` | [`languages/dart-flutter.md`](languages/dart-flutter.md) + [`checklists/dart-flutter.md`](checklists/dart-flutter.md) |
+| `.sh` / `.bash` | [`languages/bash.md`](languages/bash.md) + [`checklists/bash.md`](checklists/bash.md) |
+| `.tf` / `.tfvars` (Terraform/HCL) | [`languages/terraform.md`](languages/terraform.md) + [`checklists/terraform.md`](checklists/terraform.md) |
 | `.c` / `.h` (firmware) | [`languages/embedded-c.md`](languages/embedded-c.md) + [`checklists/embedded-c.md`](checklists/embedded-c.md) |
 | `.sql` (schemas, queries, migrations) | [`languages/sql.md`](languages/sql.md) + [`checklists/sql.md`](checklists/sql.md) |
 | `Dockerfile*` | [`languages/docker.md`](languages/docker.md) + [`checklists/docker.md`](checklists/docker.md) |
@@ -97,6 +106,15 @@ added to `languages/` without renumbering anything in the root.
 | [`languages/python.md`](languages/python.md) | Python 3 (3.10+) | `PY` | PEP 8 / 20 / 257 / 484 / 621 |
 | [`languages/typescript.md`](languages/typescript.md) | TypeScript 5.x | `TS` | TS Handbook, `strict` mode, ESLint/Prettier |
 | [`languages/vue.md`](languages/vue.md) | Vue 3 SFC + TS | `VUE` | Official Vue Style Guide (A–D), Composition API |
+| [`languages/html-css.md`](languages/html-css.md) | HTML5 + modern CSS3 | `HTMLCSS` | WHATWG HTML, MDN, W3C CSS, WCAG 2.2 |
+| [`languages/java.md`](languages/java.md) | Java 17+ (LTS) | `JAVA` | Google Java Style Guide, Effective Java, OpenJDK JEPs |
+| [`languages/go.md`](languages/go.md) | Go 1.21+ | `GO` | Effective Go, Go Code Review Comments |
+| [`languages/rust.md`](languages/rust.md) | Rust 2021+ edition | `RS` | The Rust Book, Rust API Guidelines, Clippy |
+| [`languages/swift.md`](languages/swift.md) | Swift 5.9+/6.x | `SWIFT` | Swift.org API Design Guidelines, Swift Evolution |
+| [`languages/kotlin.md`](languages/kotlin.md) | Kotlin 1.9+/2.x (Android/JVM) | `KT` | Kotlin coding conventions, Android Kotlin style guide |
+| [`languages/dart-flutter.md`](languages/dart-flutter.md) | Dart 3.x + Flutter | `DART` | Effective Dart, Flutter official docs |
+| [`languages/bash.md`](languages/bash.md) | Bash 4+ / POSIX shell | `SH` | Google Shell Style Guide, ShellCheck |
+| [`languages/terraform.md`](languages/terraform.md) | Terraform (HCL2) | `TF` | HashiCorp Terraform docs, Terraform Style Guide |
 | [`languages/sql.md`](languages/sql.md) | SQL / PostgreSQL 13+ & PostGIS 3 | `SQL` | PostgreSQL docs, PostGIS docs, PG wiki "Don't Do This" |
 | [`languages/docker.md`](languages/docker.md) | Dockerfile (BuildKit) + Docker Compose v2 | `DOCKER` | Docker "Building best practices", Compose Specification |
 | [`languages/yaml.md`](languages/yaml.md) | YAML 1.2 (config files) | `YAML` | YAML 1.2.2 spec, yamllint |
@@ -113,6 +131,15 @@ added to `languages/` without renumbering anything in the root.
 | [`checklists/python.md`](checklists/python.md) | Python |
 | [`checklists/typescript.md`](checklists/typescript.md) | TypeScript |
 | [`checklists/vue.md`](checklists/vue.md) | Vue |
+| [`checklists/html-css.md`](checklists/html-css.md) | HTML / CSS |
+| [`checklists/java.md`](checklists/java.md) | Java |
+| [`checklists/go.md`](checklists/go.md) | Go |
+| [`checklists/rust.md`](checklists/rust.md) | Rust |
+| [`checklists/swift.md`](checklists/swift.md) | Swift |
+| [`checklists/kotlin.md`](checklists/kotlin.md) | Kotlin |
+| [`checklists/dart-flutter.md`](checklists/dart-flutter.md) | Dart / Flutter |
+| [`checklists/bash.md`](checklists/bash.md) | Bash / shell scripting |
+| [`checklists/terraform.md`](checklists/terraform.md) | Terraform / HCL |
 | [`checklists/sql.md`](checklists/sql.md) | SQL / PostgreSQL / PostGIS / migrations |
 | [`checklists/docker.md`](checklists/docker.md) | Docker / Compose |
 | [`checklists/yaml.md`](checklists/yaml.md) | YAML |
@@ -137,7 +164,9 @@ Rule IDs are stable identifiers of the form `<PREFIX>-<TOPIC>-<NN>`:
 - General docs use `GEN-<AREA>` prefixes (`GEN-PRIN`, `GEN-DEF`, `GEN-ERR`,
   `GEN-SEC`, `GEN-TEST`, `GEN-PERF`, `GEN-CONC`, `GEN-VCS`, `GEN-DOC`, `GEN-OBS`,
   `GEN-TOOL`, `GEN-AI`, `GEN-GAME`).
-- Language docs use a short language prefix (`EC`, `CS`, `PY`, `TS`, `VUE`, `SQL`, `DOCKER`, `YAML`, `GD`).
+- Language docs use a short language prefix (`EC`, `CS`, `PY`, `TS`, `VUE`,
+  `HTMLCSS`, `JAVA`, `GO`, `RS`, `SWIFT`, `KT`, `DART`, `SH`, `TF`, `SQL`,
+  `DOCKER`, `YAML`, `GD`).
 
 Language rules cross-reference the general rules they specialize (e.g.
 `PY-LOG-03` ties to `GEN-OBS-04`). Cite these IDs when justifying changes.
@@ -189,4 +218,4 @@ citations against primary sources before treating any specific rule as current.
 
 ## Last updated
 
-2026-06-26.
+2026-07-15.
